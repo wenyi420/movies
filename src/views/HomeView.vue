@@ -51,9 +51,31 @@ main {
 
 .movie-slide-list:nth-child(6) {
   filter: blur(5px);
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+  }
 }
 .movie-slide-list:nth-child(7) {
   filter: blur(10px);
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+  }
 }
 .introl {
   background: var(--color-background);

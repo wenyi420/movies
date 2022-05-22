@@ -1,7 +1,10 @@
 <script setup>
 import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/form/v-input.vue";
-import { reactive, ref, watch, onBeforeMount } from "vue";
+import { reactive, ref, watch, onBeforeMount, onMounted } from "vue";
+
+const account = ref(null);
+const password = ref();
 
 function connectFB() {
   FB.login(
@@ -26,21 +29,34 @@ const rememberMe = ref(false);
 const accountRules = reactive([
   {
     required: true,
-    message: "",
+    message: "請填寫必填項目，測試信箱：test@mail.tw",
   },
   {
     email: true,
     rule: null, // 自訂規則
-    message: "",
+    message: "信箱驗證失敗，測試信箱:test@mail.tw",
   },
 ]);
 
 const passwordRules = reactive([
   {
     required: true,
-    message: "",
+    message: "請填寫必填項目，可填測試密碼：123",
   },
 ]);
+
+function login() {
+  let vlidate_1 = account.value?.validate();
+  let vlidate_2 = password.value?.validate();
+
+  Promise.all([vlidate_1, vlidate_2])
+    .then(() => {
+      alert("驗證成功");
+    })
+    .catch(() => {
+      alert("驗證失敗");
+    });
+}
 </script>
 
 <template>
@@ -54,11 +70,11 @@ const passwordRules = reactive([
     <div class="login-content">
       <h1>登入</h1>
       <form>
-        <vInput :rules="accountRules" label="電子郵件或電話號碼"></vInput>
-        <vInput :rules="passwordRules" label="密碼"></vInput>
+        <vInput :rules="accountRules" label="電子郵件" ref="account"></vInput>
+        <vInput :rules="passwordRules" label="密碼" ref="password"></vInput>
 
         <div class="login-btn-wrapper">
-          <div class="btn login-btn">登入</div>
+          <div class="btn login-btn" @click="login">登入</div>
           <div class="other">
             <a-checkbox v-model:checked="rememberMe">記住我</a-checkbox>
             <a href="javascript:;">需要協助?</a>

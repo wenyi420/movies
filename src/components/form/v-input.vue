@@ -4,6 +4,8 @@ const props = defineProps(["rules", "label"]);
 const rules = props.rules;
 console.log(props);
 
+const input = ref(null);
+
 /**
  * rules: [
  *  {
@@ -29,14 +31,13 @@ const rulesHanlder = function (v) {
       } else {
         hasError.value = true;
         errorMsg.value = required.message ? required.message : "請填寫必填項目";
-        return;
       }
     }
 
     let email = rules.find((r) => r.email);
     if (email) {
       if (v) {
-        let emailRegxp = /[\w-]+@([\w-]+\.)+[\w-]+/; //2009-2-12更正為比較簡單的驗證
+        let emailRegxp = /[\w-]+@([\w-]+\.)+[\w-]+/;
         if (emailRegxp.test(v) != true) {
           hasError.value = true;
           errorMsg.value = email.message ? email.message : "信箱格式錯誤";
@@ -62,6 +63,21 @@ watch(innerModel, (v) => {
     rulesHanlder(v);
   }
 });
+
+const validate = () => {
+  return new Promise((resolve, reject) => {
+    rulesHanlder(innerModel.value);
+    hasError.value ? reject() : resolve();
+  });
+};
+
+const focusInput = () => {
+  input.value.focus();
+};
+
+defineExpose({
+  validate,
+});
 </script>
 
 <template>
@@ -69,11 +85,12 @@ watch(innerModel, (v) => {
     <div class="v-form-item-input">
       <input
         type="text"
-        id="acount"
         :class="{ active: hasValue }"
         v-model="innerModel"
+        @blur="validate"
+        ref="input"
       />
-      <label for="acount">{{ props.label }}</label>
+      <label for="acount" @click="focusInput">{{ props.label }}</label>
     </div>
     <div class="v-form-item-error">
       <span>{{ errorMsg }}</span>

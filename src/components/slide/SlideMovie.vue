@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import { onMounted } from "@vue/runtime-core";
 import Swiper from "swiper/bundle";
 import "swiper/css/bundle";
@@ -22,7 +22,7 @@ if (!props.tag) {
   m2 = apiGetPopularMovie(2, props.tag);
 }
 
-Promise.all([m1, m2]).then((values) => {
+Promise.all([m1, m2]).then(async (values) => {
   let result = [];
   values.forEach((v) => {
     result = result.concat(v.data.results);
@@ -36,10 +36,14 @@ Promise.all([m1, m2]).then((values) => {
     };
   });
   getMoviesList();
+
+  // 待 dom 更新後才 setLazyLoad 避免查無 dom el 導致 setLazy 無效
+  await nextTick();
+  INITswiper();
   setLazyLoad();
 });
 
-const MAX_LIST_LENGTH = 7; // 最多 7 * 6 = 42 個電影
+const MAX_LIST_LENGTH = 7; // 最多 7 * PRE_VIEW 個電影
 const PRE_VIEW = 7;
 const listNum = ref(1); // 如為 0 則隱藏 prev，並以六的倍數取商數 抓到最後一頁，當 listNum = 最後一頁時隱藏 Next
 const Page = ref(0);
@@ -50,7 +54,7 @@ function getMoviesList() {
   let total = MAX_LIST_LENGTH * PRE_VIEW;
   if (movies.value.length > total) {
     movies.value = movies.value.slice(0, total);
-    Page.value = 7;
+    Page.value = MAX_LIST_LENGTH;
   } else {
     let p = Math.floor(movies.value.length / PRE_VIEW);
     movies.value = movies.value.slice(0, p * PRE_VIEW);
@@ -63,8 +67,8 @@ const swiperEl = ref(null);
 
 function nextSlideHandler() {
   listNum.value++;
-  const pre_slideWidth = -274;
-  const lastWidth = -110; // 顯示最後一個不被裁切到
+  const pre_slideWidth = -258; // 圖 + margin-left
+  const lastWidth = +14; // margin-left
 
   let translateDistance = 0;
 
@@ -75,14 +79,14 @@ function nextSlideHandler() {
 
   currentSlideTranslate.value += translateDistance;
 
-  swiper.setTransition(1000); //设定过渡的时间
+  swiper.setTransition(1000); // 輪播切換過度時間
 
   swiper.setTranslate(currentSlideTranslate.value);
 }
 function prevSlideHandler() {
   listNum.value--;
-  const pre_slideWidth = +274;
-  const lastWidth = +110; // 顯示最後一個不被裁切到
+  const pre_slideWidth = +258; // 圖 + margin-left
+  const lastWidth = -14; // margin-left
 
   let translateDistance = 0;
 
@@ -93,14 +97,16 @@ function prevSlideHandler() {
 
   currentSlideTranslate.value += translateDistance;
 
-  swiper.setTransition(1000); //设定过渡的时间
+  swiper.setTransition(1000); // 輪播切換過度時間
 
   swiper.setTranslate(currentSlideTranslate.value);
 }
 
-onMounted(() => {
+onMounted(() => {});
+
+function INITswiper() {
   swiper = new Swiper(swiperEl.value, {
-    slidesPerView: 1, // 顯示數量
+    slidesPerView: 7, // 顯示數量
     spaceBetween: 14, // 間距
     observer: true, // 確保資料取得後 swiper 能偵測並 init
     observeParents: true,
@@ -124,7 +130,7 @@ onMounted(() => {
       },
     },
   });
-});
+}
 
 function goToMovie(id) {
   router.push({ path: `/movie/${id}` });
@@ -138,7 +144,12 @@ function setLazyLoad() {
       if (v.isIntersecting) {
         v.target.style.backgroundImage =
           "url(https://image.tmdb.org/t/p/w300" + v.target.dataset.src + ")";
-        observer.unobserve(v.target); // 停止监听已加载的图片
+
+        // 避免 skeleton 動畫還沒運作而直接關閉，導致畫面閃爍
+        setTimeout(() => {
+          v.target.classList.add("active");
+        }, 800);
+        observer.unobserve(v.target); // 停止監聽已加載圖片
       }
     });
   });
@@ -197,62 +208,114 @@ function setLazyLoad() {
 
   @media screen and (max-width: 480px) {
     margin-right: -15%;
+    margin-top: 0px;
   }
 }
 .swiper {
   width: 100%;
-  padding-bottom: 30px;
-  .swiper-slide {
-    position: relative;
-    // margin-right: 14px;
 
-    // @media screen and (max-width: 1024px) {
-    //   max-width: 100%;
-    //   width: 30%;
-    // }
-    // @media screen and (max-width: 480px) {
-    //   width: 40%;
-    // }
+  .swiper-wrapper {
+    padding-bottom: 30px;
 
-    .movie-item {
-      display: block;
-      background-position: center center;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
-    img {
+    .swiper-slide {
       position: relative;
-      z-index: -1; // 呈現 movie-item 背景圖用
-      width: 100%;
-      height: auto;
-      // width: 299px;
-      // height: 350px;
-      // object-fit: fill;
+      .movie-item {
+        display: block;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
 
-      // @media screen and (max-width: 1024px) {
-      //   width: 100%;
-      //   height: auto;
-      // }
+        @media screen and (max-width: 480px) {
+          overflow: hidden;
+          border-radius: 5px;
+        }
+
+        // 負責呈現 skeleton
+        &::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 0;
+          display: block;
+          width: 100%;
+          height: 100%;
+
+          background: #eee;
+        }
+
+        // 負責呈現 skeleton
+        &::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 0;
+          display: block;
+          width: 100%;
+          height: 100%;
+
+          background: linear-gradient(
+            90deg,
+            rgba(190, 190, 190, 0.2) 25%,
+            rgba(129, 129, 129, 0.24) 37%,
+            rgba(190, 190, 190, 0.2) 63%
+          );
+          background-size: 400% 100%;
+          animation: ant-skeleton-loading 1.4s ease infinite;
+        }
+      }
+
+      .movie-item.active {
+        &::before {
+          display: none;
+        }
+        &::after {
+          display: none;
+        }
+      }
+
+      img {
+        position: relative;
+        z-index: -1; // 呈現 movie-item 背景圖用
+        width: 100%;
+        height: auto;
+        visibility: hidden; // 避免顯示圖片文字
+      }
     }
-  }
-  .title {
-    color: var(--color-text);
-    display: block;
-    text-align: center;
-    margin-top: 2px;
-    font-size: 16px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
+    .title {
+      color: var(--color-text);
+      display: block;
+      text-align: center;
+      margin-top: 2px;
+      font-size: 16px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
 
-    @media screen and (max-width: 480px) {
-      font-size: 14px;
+      @media screen and (max-width: 480px) {
+        font-size: 14px;
+      }
     }
   }
 
   @media screen and (max-width: 480px) {
-    padding-bottom: 50px;
+    .swiper-wrapper {
+      padding-bottom: 48px;
+      .swiper-slide {
+        border-radius: 5px;
+      }
+    }
+  }
+}
+
+@keyframes ant-skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  to {
+    background-position: 0 50%;
   }
 }
 
