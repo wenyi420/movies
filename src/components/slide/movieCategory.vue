@@ -46,7 +46,6 @@ const movieTypeList = [
 ];
 
 const target = movieTypeList.find((item) => item.type === props.type);
-console.log("target", target);
 </script>
 <template>
   <div class="movie-slide-list">
@@ -65,6 +64,12 @@ console.log("target", target);
     line-height: 27px;
     font-weight: 500;
     color: #fff;
+  }
+  @media screen and (max-width: 480px) {
+    margin-top: 0px;
+    .cate {
+      font-size: 16px;
+    }
   }
 }
 </style>

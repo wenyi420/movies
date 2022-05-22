@@ -4,24 +4,52 @@
   --v-white: #ffffff;
   --v-black: #000000;
   --v-main-color: #e50914;
-  --footer-text-color: #757575;
+  
+  
+  --v-gray-light-2: #f1f1f1;
+  --v-gray-light-4: #e5e5e5;
+  --v-gray-light-6: #cacaca;
+  --v-gray-light-8: #a3a3a3;
 
-  /* dark main */
+  --v-border-color: rgba(60, 60, 60, 0.12);
+
+
+}
+
+.dark{
   --color-main: var(--v-main-color);
   --color-background: #181818;
   --color-text: var(--v-white);
   --color-section: #242424;
   --color-border: rgba(84, 84, 84, .48);
+  
 
+  --header-bg: var(--v-black);
+  --footer-text-color: #757575;
+
+  --v-input-label: var(--color-text);
+  --v-input-border-color: transparent;
+  --v-input-bg: #333;
+  --v-input-bg--focus: #454545;
+  --v-input-error: #e87c03;
 }
-
 
 .light {
   --color-main: var(--v-main-color);
-  --color-background: var(--v-white);
+  --color-background: #fff;
   --color-text: #213547;
+  --color-text-2: rgb(60 60 60 / 70%);
   --color-section: rgb(249 249 249);
-  --color-border: rgb(60 60 60 / 12%);
+  --color-border: #d2d2d2;
+
+  --header-bg: #fff;
+  --footer-text-color: var(--color-text);
+
+  --v-input-label: var(--v-gray-light-8);
+  --v-input-border-color: var(--v-gray-light-6);
+  --v-input-bg: var(--v-gray-light-2);
+  --v-input-bg--focus: var(--v-gray-light-4);
+  --v-input-error: var(--color-main);
 }
 
 
@@ -36,10 +64,18 @@
 
 body, html {
   font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
-  background: var(--color-background) !important;
   color: var(--color-text) !important;
   font-size: 16px;
   direction: ltr;
+  background-color: var(--color-background) !important;
+
+  max-width: 100%;
+  height: auto !important;
+  overflow-x: hidden;
+}
+
+body.b-transition{
+  transition: color 0.5s, background-color 0.5s;
 }
 
 #app h1,
@@ -56,7 +92,7 @@ img{
 }
 
 body {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   line-height: 1.6;
   /* font-family: 'Rubik', sans-serif,Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
     Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;

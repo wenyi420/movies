@@ -94,22 +94,23 @@ watch(innerModel, (v) => {
       transform: translateY(-50%);
       left: 20px;
       font-size: 16px;
-      color: var(--footer-text-color);
+      color: var(--v-input-label);
       transition: font 0.1s ease, top 0.1s ease, transform 0.1s ease;
     }
     input {
       border-radius: 4px;
       border: 0;
-      color: #fff;
+      color: var(--color-text);
       height: 50px;
       line-height: 50px;
       padding: 16px 20px 0;
-      background: #333;
+      background: var(--v-input-bg);
       outline: none;
       display: inline-block;
       width: 100%;
+      border: 1px solid var(--v-input-border-color);
       &:focus {
-        background: #454545;
+        background: var(--v-input-bg--focus);
       }
       &.active + label,
       &:focus + label {
@@ -122,7 +123,7 @@ watch(innerModel, (v) => {
   .v-form-item-error {
     margin-top: 5px;
     span {
-      color: #e87c03;
+      color: var(--v-input-error);
     }
   }
   &.hasError {
@@ -136,7 +137,7 @@ watch(innerModel, (v) => {
         height: 6px;
         border-bottom-left-radius: 4px;
         border-bottom-right-radius: 4px;
-        border-bottom: 2px solid #e87c03;
+        border-bottom: 2px solid var(--v-input-error);
       }
     }
   }

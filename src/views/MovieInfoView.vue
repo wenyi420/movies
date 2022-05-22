@@ -6,6 +6,7 @@ import {
   apiGetPopularMovie,
 } from "@/apis/movie.js";
 import { ref, reactive, computed } from "vue";
+import { i18n } from "@/i18n/config.js";
 
 const router = useRouter();
 const route = useRoute();
@@ -41,6 +42,20 @@ const trailer = computed(() => {
 
   return hasYoutube ? video.key : null;
 });
+
+const getFirstSentence = (info) => {
+  if (info) {
+    let searchText;
+    if (i18n.global.locale === "zh-TW") {
+      searchText = "。";
+    }
+    if (i18n.global.locale === "en") {
+      searchText = ".";
+    }
+    return info.split(searchText)[0] + searchText;
+  }
+  return "";
+};
 
 // date: 2021-01-01
 const getReleaseYear = function (date) {
@@ -129,7 +144,7 @@ vote_count:257
         }}</span>
       </div>
       <div class="info-desc">
-        {{ movieData.overview }}
+        {{ getFirstSentence(movieData.overview) }}
       </div>
     </div>
     <div class="img-box">
@@ -155,8 +170,7 @@ vote_count:257
       <!-- 預告片資訊：{ "id": 675353, "results": [ { "iso_639_1": "zh", "iso_3166_1": "TW", "name": "【音速小子2】首支預告 - 2022年 全台戲院見", "key": "o_unED06-lg", "site": "YouTube", "size": 1080, "type": "Trailer", "official": false, "published_at": "2021-12-10T01:51:44.000Z", "id": "620cd7505cea180043ddbfdb" } ] }
  -->
       <iframe
-        width="620"
-        height="350"
+        class="youtube-iframe"
         :src="'https://www.youtube.com/embed/' + trailer"
         title="YouTube video player"
         frameborder="0"
@@ -171,21 +185,19 @@ vote_count:257
     </div>
     <div class="section-body">
       <div class="similarMovies">
-        <div
-          :key="movie.id"
-          v-for="movie in similarMovies"
-          class="similarMovies-item"
-        >
-          <a @click="goToMovie(movie.id)">
-            <img
-              :src="
-                'https://image.tmdb.org/t/p/w250_and_h141_face' +
-                movie.backdrop_path
-              "
-              alt=""
-            />
-            <span class="title">{{ movie.title }}</span>
-          </a>
+        <div :key="movie.id" v-for="movie in similarMovies">
+          <div v-if="movie.backdrop_path" class="similarMovies-item">
+            <a @click="goToMovie(movie.id)">
+              <img
+                :src="
+                  'https://image.tmdb.org/t/p/w250_and_h141_face' +
+                  movie.backdrop_path
+                "
+                alt=""
+              />
+              <span class="title">{{ movie.title }}</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -227,7 +239,7 @@ vote_count:257
       font-size: 16px;
       line-height: 22px;
       font-weight: 400;
-      color: #fff;
+      color: var(--color-text);
       max-width: 100%;
     }
   }
@@ -250,37 +262,68 @@ vote_count:257
       background-position: 50% 50%;
     }
   }
+}
 
-  &::after {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    display: block;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(
-      to right,
-      #181818 10%,
-      rgba(23, 23, 23, 0.98) 20%,
-      rgba(23, 23, 23, 0.97) 25%,
-      rgba(23, 23, 23, 0.95) 35%,
-      rgba(23, 23, 23, 0.94) 40%,
-      rgba(23, 23, 23, 0.92) 45%,
-      rgba(23, 23, 23, 0.9) 50%,
-      rgba(23, 23, 23, 0.87) 55%,
-      rgba(23, 23, 23, 0.82) 60%,
-      rgba(23, 23, 23, 0.75) 65%,
-      rgba(23, 23, 23, 0.63) 70%,
-      rgba(23, 23, 23, 0.45) 75%,
-      rgba(23, 23, 23, 0.27) 80%,
-      rgba(23, 23, 23, 0.15) 85%,
-      rgba(23, 23, 23, 0.08) 90%,
-      rgba(23, 23, 23, 0.03) 95%,
-      rgba(23, 23, 23, 0) 100%
-    );
-    top: 0;
-    left: 0;
-  }
+.dark .movieSection::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    var(--color-background) 10%,
+    rgba(23, 23, 23, 0.98) 20%,
+    rgba(23, 23, 23, 0.97) 25%,
+    rgba(23, 23, 23, 0.95) 35%,
+    rgba(23, 23, 23, 0.94) 40%,
+    rgba(23, 23, 23, 0.92) 45%,
+    rgba(23, 23, 23, 0.9) 50%,
+    rgba(23, 23, 23, 0.87) 55%,
+    rgba(23, 23, 23, 0.82) 60%,
+    rgba(23, 23, 23, 0.75) 65%,
+    rgba(23, 23, 23, 0.63) 70%,
+    rgba(23, 23, 23, 0.45) 75%,
+    rgba(23, 23, 23, 0.27) 80%,
+    rgba(23, 23, 23, 0.15) 85%,
+    rgba(23, 23, 23, 0.08) 90%,
+    rgba(23, 23, 23, 0.03) 95%,
+    rgba(23, 23, 23, 0) 100%
+  );
+  top: 0;
+  left: 0;
+}
+
+.light .movieSection::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    var(--color-background) 10%,
+    rgba(232, 232, 232, 0.98) 20%,
+    rgba(232, 232, 232, 0.97) 25%,
+    rgba(232, 232, 232, 0.95) 35%,
+    rgba(232, 232, 232, 0.94) 40%,
+    rgba(232, 232, 232, 0.92) 45%,
+    rgba(232, 232, 232, 0.9) 50%,
+    rgba(232, 232, 232, 0.87) 55%,
+    rgba(232, 232, 232, 0.82) 60%,
+    rgba(232, 232, 232, 0.75) 65%,
+    rgba(232, 232, 232, 0.63) 70%,
+    rgba(232, 232, 232, 0.45) 75%,
+    rgba(232, 232, 232, 0.27) 80%,
+    rgba(232, 232, 232, 0.15) 85%,
+    rgba(232, 232, 232, 0.08) 90%,
+    rgba(232, 232, 232, 0.03) 95%,
+    rgba(232, 232, 232, 0) 100%
+  );
+  top: 0;
+  left: 0;
 }
 
 .nmtitle-section {
@@ -310,14 +353,19 @@ vote_count:257
 }
 
 .similarMovies {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
   margin: -6px;
 
+  @media screen and (max-width: 1439px) {
+    grid-template-columns: 33.333% 33.333% 33.333%;
+  }
+  @media screen and (max-width: 1024px) {
+    grid-template-columns: 50% 50%;
+  }
   .similarMovies-item {
     max-width: 100%;
     margin: 6px;
-    width: 308px;
 
     img {
       width: 100%;
@@ -327,6 +375,64 @@ vote_count:257
       display: block;
       color: var(--color-text);
     }
+  }
+}
+
+@media screen and (max-width: 1760px) {
+  .movieSection,
+  .nmtitle-section {
+    margin: 0px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .movieSection {
+    .info {
+      width: 100%;
+      max-width: 100%;
+      min-width: unset;
+
+      h1 {
+        font-size: 42px;
+        margin-top: 15%;
+      }
+    }
+    .img-box {
+      .img-bg {
+        right: 0%;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .movieSection {
+    .info {
+      h1 {
+        font-size: 32px;
+        margin-top: 15%;
+      }
+      .info-desc {
+        font-size: 14px;
+      }
+    }
+    &::after {
+      width: 100%;
+      background: rgb(0 0 0 / 60%);
+    }
+  }
+}
+
+.youtube-iframe {
+  width: 620px;
+  height: 350px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    height: 280px;
+  }
+  @media screen and (max-width: 480px) {
+    height: 200px;
   }
 }
 </style>

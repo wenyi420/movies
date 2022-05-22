@@ -8,7 +8,7 @@ function connectFB() {
     function (response) {
       // handle the response
       if (response.status === "connected") {
-        console.log("fb connect: ", response);
+        console.log("fb connect 成功: ", response);
         // Logged into your webpage and Facebook.
       } else {
         console.log("fb error: ", response);
@@ -45,9 +45,10 @@ const passwordRules = reactive([
 
 <template>
   <div class="login-wrapper">
-    <div class="login-wrapper-bg">
-      <img :src="loginBG" alt="" />
-    </div>
+    <div
+      class="login-wrapper-bg"
+      :style="{ 'background-image': 'url(' + loginBG + ')' }"
+    ></div>
   </div>
   <div class="login-body">
     <div class="login-content">
@@ -57,7 +58,7 @@ const passwordRules = reactive([
         <vInput :rules="passwordRules" label="密碼"></vInput>
 
         <div class="login-btn-wrapper">
-          <button type="button" class="btn login-btn">登入</button>
+          <div class="btn login-btn">登入</div>
           <div class="other">
             <a-checkbox v-model:checked="rememberMe">記住我</a-checkbox>
             <a href="javascript:;">需要協助?</a>
@@ -65,9 +66,7 @@ const passwordRules = reactive([
         </div>
 
         <div class="connentLogin-wrapper">
-          <button type="button" class="btn" @click="connectFB">
-            使用 Facebook 帳號登入
-          </button>
+          <div class="btn" @click="connectFB">使用 Facebook 帳號登入</div>
         </div>
       </form>
     </div>
@@ -76,27 +75,34 @@ const passwordRules = reactive([
 
 <style lang="scss">
 .login-wrapper {
+  overflow: hidden;
   position: absolute;
   left: 0;
   top: 0;
   width: 100%;
+  height: 100%;
   overflow: hidden;
-  min-height: 100vh;
   display: block;
 
-  img {
-    min-height: 100%;
-    min-width: 100%;
+  .login-wrapper-bg {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    @media screen and (max-width: 640px) {
+      display: none;
+    }
   }
 }
 
 .login-body {
   position: relative;
-  margin: 0 auto -117px;
-  min-height: 100vh;
+  margin: 0 auto;
   background-color: transparent;
   max-width: 450px;
   z-index: 10;
+  min-height: calc(100vh - 228px);
 
   .btn {
     font-size: 16px;
@@ -104,7 +110,8 @@ const passwordRules = reactive([
     margin: 24px 0 12px;
     padding: 16px;
     width: 100%;
-
+    color: #fff;
+    text-align: center;
     border-radius: 5px;
     line-height: 1;
     cursor: pointer;
@@ -129,6 +136,10 @@ const passwordRules = reactive([
   }
 }
 
+.light .login-body .login-content {
+  background: rgba(255, 255, 255, 0.75);
+}
+
 .login-btn-wrapper {
   .login-btn {
     background: var(--color-main);
@@ -138,7 +149,7 @@ const passwordRules = reactive([
     justify-content: space-between;
 
     a {
-      color: #b3b3b3;
+      color: var(--color-text);
 
       &:hover {
         text-decoration: underline;
@@ -146,7 +157,7 @@ const passwordRules = reactive([
     }
 
     .ant-checkbox-wrapper {
-      color: #b3b3b3;
+      color: var(--color-text);
       padding-left: 2px;
     }
     .ant-checkbox-inner {
@@ -165,5 +176,21 @@ const passwordRules = reactive([
 }
 .connentLogin-wrapper .btn {
   background: #4267b2;
+}
+
+@media screen and (max-width: 640px) {
+  .login-body {
+    width: 90%;
+    margin: 0 auto;
+    max-width: 100%;
+
+    .login-content {
+      padding: 0;
+      min-height: auto;
+    }
+  }
+  .login-wrapper img {
+    display: none;
+  }
 }
 </style>

@@ -6,6 +6,8 @@ import App from "./App.vue";
 import "ant-design-vue/dist/antd.less";
 import router from "./router";
 
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 window.fbAsyncInit = function () {
   FB.init({
     appId: "307282398242165",
@@ -36,4 +38,5 @@ app.use(router);
 app.use(Antd);
 app.use(i18n);
 app.provide("rootVueInstance", app);
+app.component("font-awesome-icon", FontAwesomeIcon);
 app.mount("#app");

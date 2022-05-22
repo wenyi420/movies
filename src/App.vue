@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { RouterView, useRoute } from "vue-router";
 import MHeader from "@/components/Header.vue";
 import MFooter from "@/components/Footer.vue";
@@ -13,6 +13,10 @@ const isLoginPage = computed(() => {
     return true;
   }
   return false;
+});
+
+onMounted(() => {
+  document.body.classList.add("b-transition");
 });
 </script>
 
@@ -36,13 +40,22 @@ const isLoginPage = computed(() => {
     content: "";
     display: block;
     width: 100%;
-    min-height: 100vh;
     height: 100%;
     background: rgb(0 0 0 / 60%);
     z-index: 0;
     position: absolute;
     left: 0;
     top: 0;
+  }
+}
+
+.light .with-fixed-header.loginPage::after {
+  background: rgb(255 255 255 / 60%);
+}
+
+@media screen and (max-width: 640px) {
+  .with-fixed-header.loginPage::after {
+    background: #000;
   }
 }
 </style>

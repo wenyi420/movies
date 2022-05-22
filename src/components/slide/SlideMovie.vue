@@ -7,6 +7,7 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons-vue";
 import { apiGetPopularMovie } from "@/apis/movie.js";
 import { useRouter } from "vue-router";
 import noImg from "@/assets/image/noImg.svg";
+import movieImg from "@/assets/image/MovieSlideImgBox.png";
 
 const router = useRouter();
 const movies = ref([]);
@@ -35,10 +36,11 @@ Promise.all([m1, m2]).then((values) => {
     };
   });
   getMoviesList();
+  setLazyLoad();
 });
 
 const MAX_LIST_LENGTH = 7; // 最多 7 * 6 = 42 個電影
-const PRE_VIEW = 6;
+const PRE_VIEW = 7;
 const listNum = ref(1); // 如為 0 則隱藏 prev，並以六的倍數取商數 抓到最後一頁，當 listNum = 最後一頁時隱藏 Next
 const Page = ref(0);
 
@@ -61,8 +63,8 @@ const swiperEl = ref(null);
 
 function nextSlideHandler() {
   listNum.value++;
-  const pre_slideWidth = -312;
-  const lastWidth = -70; // 顯示最後一個不被裁切到
+  const pre_slideWidth = -274;
+  const lastWidth = -110; // 顯示最後一個不被裁切到
 
   let translateDistance = 0;
 
@@ -79,8 +81,8 @@ function nextSlideHandler() {
 }
 function prevSlideHandler() {
   listNum.value--;
-  const pre_slideWidth = +312;
-  const lastWidth = +70; // 顯示最後一個不被裁切到
+  const pre_slideWidth = +274;
+  const lastWidth = +110; // 顯示最後一個不被裁切到
 
   let translateDistance = 0;
 
@@ -98,15 +100,49 @@ function prevSlideHandler() {
 
 onMounted(() => {
   swiper = new Swiper(swiperEl.value, {
-    slidesPerView: 6, // 顯示數量
-    spaceBetween: 0, // 間距
-  });
+    slidesPerView: 1, // 顯示數量
+    spaceBetween: 14, // 間距
+    observer: true, // 確保資料取得後 swiper 能偵測並 init
+    observeParents: true,
 
-  console.log("swiper", swiper);
+    // Responsive breakpoints
+    breakpoints: {
+      // when window width is >= 320px
+      320: {
+        slidesPerView: 4,
+        spaceBetween: 7,
+      },
+
+      // when window width is >= 640px
+      768: {
+        slidesPerView: 5,
+        spaceBetween: 14,
+      },
+      1024: {
+        slidesPerView: 7,
+        spaceBetween: 14,
+      },
+    },
+  });
 });
 
 function goToMovie(id) {
   router.push({ path: `/movie/${id}` });
+}
+
+function setLazyLoad() {
+  const imgs = document.querySelectorAll("a.movie-item");
+  const observer = new IntersectionObserver((nodes) => {
+    nodes.forEach((v) => {
+      // 進入可視區域才加載
+      if (v.isIntersecting) {
+        v.target.style.backgroundImage =
+          "url(https://image.tmdb.org/t/p/w300" + v.target.dataset.src + ")";
+        observer.unobserve(v.target); // 停止监听已加载的图片
+      }
+    });
+  });
+  imgs.forEach((v) => observer.observe(v));
 }
 </script>
 
@@ -116,12 +152,18 @@ function goToMovie(id) {
       <div class="swiper-wrapper">
         <!-- Slides -->
         <div class="swiper-slide" :key="index" v-for="(movie, index) in movies">
-          <a @click="goToMovie(movie.id)">
-            <img
-              :src="'https://image.tmdb.org/t/p/w300' + movie.url"
-              alt=""
-              v-if="movie.url"
-            />
+          <a
+            class="movie-item"
+            :data-src="movie.url"
+            @click="goToMovie(movie.id)"
+          >
+            <!-- 當進入  Intersection Observer API 後，透過 js 添加此 style 
+              :style="{
+              'background-image':
+                'url(https://image.tmdb.org/t/p/w300' + movie.url + ')',
+              }" 
+            -->
+            <img v-if="movie.url" :src="movieImg" alt="" />
             <img :src="noImg" v-else />
             <span class="title">{{ movie.title }}</span>
           </a>
@@ -152,23 +194,45 @@ function goToMovie(id) {
 .slide-content {
   position: relative;
   margin: 16px 0;
+
+  @media screen and (max-width: 480px) {
+    margin-right: -15%;
+  }
 }
 .swiper {
   width: 100%;
-  height: 380px;
-
+  padding-bottom: 30px;
   .swiper-slide {
     position: relative;
-    margin-right: 14px;
-    max-width: 298px;
+    // margin-right: 14px;
 
-    a {
-      display: inline-block;
+    // @media screen and (max-width: 1024px) {
+    //   max-width: 100%;
+    //   width: 30%;
+    // }
+    // @media screen and (max-width: 480px) {
+    //   width: 40%;
+    // }
+
+    .movie-item {
+      display: block;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
     }
     img {
-      width: 299px;
-      height: 350px;
-      object-fit: fill;
+      position: relative;
+      z-index: -1; // 呈現 movie-item 背景圖用
+      width: 100%;
+      height: auto;
+      // width: 299px;
+      // height: 350px;
+      // object-fit: fill;
+
+      // @media screen and (max-width: 1024px) {
+      //   width: 100%;
+      //   height: auto;
+      // }
     }
   }
   .title {
@@ -180,6 +244,15 @@ function goToMovie(id) {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    width: 100%;
+
+    @media screen and (max-width: 480px) {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    padding-bottom: 50px;
   }
 }
 
@@ -187,7 +260,7 @@ function goToMovie(id) {
 .slide-button-next {
   height: 100%;
   position: absolute;
-  top: -20px;
+  top: 0px;
   z-index: 99;
   font-weight: bold;
   color: var(--v-main-color);
@@ -225,7 +298,7 @@ function goToMovie(id) {
   right: 25px;
   background-image: linear-gradient(
     to right,
-    #181818 30%,
+    var(--color-background) 30%,
     rgba(24, 24, 24, 0) 100%
   );
 }
@@ -233,8 +306,16 @@ function goToMovie(id) {
   left: 25px;
   background-image: linear-gradient(
     to left,
-    #181818 30%,
+    var(--color-background) 30%,
     rgba(24, 24, 24, 0) 100%
   );
+}
+
+@media screen and (max-width: 1024px) {
+  .slide-button-prev,
+  .slide-button-next,
+  .slide-button-next .slide-button-gradient {
+    display: none;
+  }
 }
 </style>

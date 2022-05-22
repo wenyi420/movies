@@ -54,11 +54,17 @@ const lang = ref("zh-TW");
 footer {
   min-width: 190px;
   width: 100%;
-  margin-top: 80px;
+  padding-top: 30px;
   padding-bottom: 20px;
   font-size: 1em;
   position: relative;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--v-border-color);
 }
+body.b-transition footer {
+  transition: color 0.5s, background-color 0.5s;
+}
+
 .loginPage footer {
   margin-top: 0;
   background: rgba(0, 0, 0, 0.75);
@@ -68,9 +74,11 @@ footer {
     margin: 0 auto;
   }
 }
+.light .loginPage footer {
+  background: rgba(255, 255, 255, 0.75);
+}
 .site-footer {
   margin: 0 auto;
-  padding-top: 30px;
   width: 90%;
   .footer-top {
     font-size: 16px;
@@ -109,8 +117,10 @@ footer {
   }
 }
 
+.ant-select:not(.ant-select-customize-input) .ant-select-selector,
 .lang-section-container .ant-select {
-  background-color: #000 !important;
+  background-color: var(--color-background) !important;
   color: var(--footer-text-color);
+  border: none !important;
 }
 </style>
