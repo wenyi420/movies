@@ -9,7 +9,7 @@ import "@/assets/base.css";
 const route = useRoute();
 
 const isLoginPage = computed(() => {
-  if (route.path?.includes("login")) {
+  if (route.path?.includes("login") || route.path?.includes("register")) {
     return true;
   }
   return false;

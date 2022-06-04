@@ -6,13 +6,13 @@ import "sweetalert2/src/sweetalert2.scss";
 import { reactive, ref, watch, onBeforeMount, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
-import { apiLoginAccont, apiCreateAccont } from "@/apis/googleSheet.js";
+import { apiCreateAccont } from "@/apis/googleSheet.js";
 
 import { useRouter } from "vue-router";
 const router = useRouter();
 
-function toRegisterPage() {
-  router.push("/register");
+function toLoginPage() {
+  router.push("/login");
 }
 
 const store = useUserStore();
@@ -56,7 +56,7 @@ const passwordRules = reactive([
   },
 ]);
 
-function login() {
+function singup() {
   let vlidate_1 = account.value?.validate();
   let vlidate_2 = password.value?.validate();
 
@@ -71,12 +71,11 @@ function login() {
 
 function checkLogin() {
   let params = `account=${account.value?.innerModel}&password=${password.value?.innerModel}&type=register`;
-  apiLoginAccont(params, successCreateHandler);
+  apiCreateAccont(params, successCreateHandler);
 
   //
   function successCreateHandler(res) {
     console.log("res", res);
-    // todo 導向首頁 且將帳戶資料存入 state
   }
 }
 </script>
@@ -90,24 +89,17 @@ function checkLogin() {
   </div>
   <div class="login-body">
     <div class="login-content">
-      <h1>登入</h1>
+      <h1>註冊帳戶</h1>
       <form>
         <vInput :rules="accountRules" label="電子郵件" ref="account"></vInput>
         <vInput :rules="passwordRules" label="密碼" ref="password"></vInput>
 
         <div class="login-btn-wrapper">
-          <div class="btn login-btn" @click="login">登入</div>
-          <div class="other">
-            <a-checkbox v-model:checked="rememberMe">記住我</a-checkbox>
-            <a href="javascript:;">需要協助?</a>
-          </div>
-          <div class="register">
-            尚未加入 Movies？<a class="registerLink" @click="toRegisterPage"
-              >馬上註冊</a
-            >。
+          <div class="btn login-btn" @click="singup">註冊</div>
+          <div class="login">
+            已經是會員？<a class="loginLink" @click="toLoginPage">立即登入</a>。
           </div>
         </div>
-
         <div class="connentLogin-wrapper">
           <div class="btn FB-btn" @click="connectFB">
             使用 Facebook 帳號登入
@@ -116,12 +108,6 @@ function checkLogin() {
       </form>
     </div>
   </div>
-
-  <a-modal v-model:visible="visible" title="Basic Modal" @ok="handleOk">
-    <p>Some contents...</p>
-    <p>Some contents...</p>
-    <p>Some contents...</p>
-  </a-modal>
 </template>
 
 <style lang="scss">
@@ -227,11 +213,11 @@ function checkLogin() {
       border-color: #737373;
     }
   }
-  .register {
+  .login {
     font-size: 16px;
     margin-top: 40px;
     color: var(--footer-text-color);
-    .registerLink {
+    .loginLink {
       color: var(--color-text);
       &:hover {
         text-decoration: underline;

@@ -8,6 +8,8 @@ import router from "./router";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+
+
 window.fbAsyncInit = function () {
   FB.init({
     appId: "307282398242165",

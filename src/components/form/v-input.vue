@@ -77,6 +77,7 @@ const focusInput = () => {
 
 defineExpose({
   validate,
+  innerModel,
 });
 </script>
 
