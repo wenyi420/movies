@@ -4,22 +4,32 @@ import { onMounted } from "@vue/runtime-core";
 import Swiper from "swiper/bundle";
 import "swiper/css/bundle";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons-vue";
-import { apiGetPopularMovie } from "@/apis/movie.js";
+import { apiGetPopularMovie, apiGetNexflix } from "@/apis/movie.js";
 import { useRouter } from "vue-router";
 import noImg from "@/assets/image/noImg.svg";
 import movieImg from "@/assets/image/MovieSlideImgBox.png";
 
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user.js";
+
 const router = useRouter();
 const movies = ref([]);
 const props = defineProps(["tag"]);
+const isNetflix = props.tag === "213" ? true : false;
 
 let m1, m2;
 if (!props.tag) {
   m1 = apiGetPopularMovie(1);
   m2 = apiGetPopularMovie(2);
 } else {
-  m1 = apiGetPopularMovie(1, props.tag);
-  m2 = apiGetPopularMovie(2, props.tag);
+  // Netflix
+  if (isNetflix) {
+    m1 = apiGetNexflix(1);
+    m2 = apiGetNexflix(2);
+  } else {
+    m1 = apiGetPopularMovie(1, props.tag);
+    m2 = apiGetPopularMovie(2, props.tag);
+  }
 }
 
 Promise.all([m1, m2]).then(async (values) => {
@@ -32,7 +42,7 @@ Promise.all([m1, m2]).then(async (values) => {
     return {
       id: d.id,
       url: d.poster_path,
-      title: d.title,
+      title: isNetflix ? d.name : d.title,
     };
   });
   getMoviesList();
@@ -106,7 +116,6 @@ onMounted(() => {});
 
 function INITswiper() {
   swiper = new Swiper(swiperEl.value, {
-    slidesPerView: 7, // 顯示數量
     spaceBetween: 14, // 間距
     observer: true, // 確保資料取得後 swiper 能偵測並 init
     observeParents: true,
@@ -133,7 +142,11 @@ function INITswiper() {
 }
 
 function goToMovie(id) {
-  router.push({ path: `/movie/${id}` });
+  if (isNetflix) {
+    // sessionStorage.setItem("isNetflix", true);
+    return router.push({ path: `/movie/netflix/${id}` });
+  }
+  return router.push({ path: `/movie/${id}` });
 }
 
 function setLazyLoad() {

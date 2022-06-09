@@ -6,7 +6,7 @@ import "sweetalert2/src/sweetalert2.scss";
 import { reactive, ref, watch, onBeforeMount, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
-import { apiCreateAccont } from "@/apis/googleSheet.js";
+import { apiCreateAccont, apiCreateAccountByFB } from "@/apis/googleSheet.js";
 
 import { useRouter } from "vue-router";
 const router = useRouter();
@@ -29,7 +29,7 @@ const account = ref(null);
 const password = ref();
 
 function connectFB() {
-  apiCreateAccountByFB(callback);
+  apiCreateAccountByFB();
 }
 
 const rememberMe = ref(false);
@@ -56,24 +56,33 @@ const passwordRules = reactive([
   },
 ]);
 
-function singup() {
+function checkValue() {
   let vlidate_1 = account.value?.validate();
   let vlidate_2 = password.value?.validate();
 
   Promise.all([vlidate_1, vlidate_2])
     .then(() => {
-      checkLogin();
+      singup();
     })
     .catch(() => {
-      alert("驗證失敗");
+      alert("請填寫正確值");
     });
 }
 
-function checkLogin() {
-  let params = `account=${account.value?.innerModel}&password=${password.value?.innerModel}&type=register`;
-  apiCreateAccont(params, successCreateHandler);
+function singup() {
+  //   let _account = encodeURI(account.value?.innerModel);
+  //   let _password = encodeURI(password.value?.innerModel);
 
-  //
+  //   let params = `account=${_account}&password=${_password}&role=member`;
+
+  let data = {
+    account: account.value?.innerModel,
+    password: password.value?.innerModel,
+    role: "member",
+    state: "signup",
+  };
+  apiCreateAccont(data, successCreateHandler);
+
   function successCreateHandler(res) {
     console.log("res", res);
   }
@@ -92,10 +101,15 @@ function checkLogin() {
       <h1>註冊帳戶</h1>
       <form>
         <vInput :rules="accountRules" label="電子郵件" ref="account"></vInput>
-        <vInput :rules="passwordRules" label="密碼" ref="password"></vInput>
+        <vInput
+          :rules="passwordRules"
+          label="密碼"
+          ref="password"
+          type="password"
+        ></vInput>
 
         <div class="login-btn-wrapper">
-          <div class="btn login-btn" @click="singup">註冊</div>
+          <div class="btn login-btn" @click="checkValue">註冊</div>
           <div class="login">
             已經是會員？<a class="loginLink" @click="toLoginPage">立即登入</a>。
           </div>

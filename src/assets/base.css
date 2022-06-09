@@ -27,7 +27,7 @@
   --header-bg: var(--v-black);
   --footer-text-color: #757575;
 
-  --v-input-label: var(--color-text);
+  --v-input-label: #757575;
   --v-input-border-color: transparent;
   --v-input-bg: #333;
   --v-input-bg--focus: #454545;

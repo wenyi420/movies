@@ -1,8 +1,24 @@
 <script setup>
 import { reactive, ref, watch, defineProps } from "vue";
-const props = defineProps(["rules", "label"]);
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+/* add icons to the library */
+library.add(faEye, faEyeSlash);
+
+const props = defineProps(["rules", "label", "type"]);
 const rules = props.rules;
-console.log(props);
+const inputType = props.type ? ref(props.type) : ref("text");
+const isShowPassword = ref(false);
+
+function togglePassword() {
+  if (isShowPassword.value) {
+    isShowPassword.value = false;
+    inputType.value = "password";
+  } else {
+    isShowPassword.value = true;
+    inputType.value = "text";
+  }
+}
 
 const input = ref(null);
 
@@ -85,13 +101,23 @@ defineExpose({
   <div class="v-form-item" :class="{ hasError: hasError }">
     <div class="v-form-item-input">
       <input
-        type="text"
+        :type="inputType"
         :class="{ active: hasValue }"
         v-model="innerModel"
         @blur="validate"
         ref="input"
       />
       <label for="acount" @click="focusInput">{{ props.label }}</label>
+      <span
+        class="password-icon"
+        v-if="type === 'password'"
+        @click="togglePassword"
+      >
+        <span v-show="isShowPassword"> <font-awesome-icon icon="eye" /></span>
+        <span v-show="!isShowPassword"
+          ><font-awesome-icon icon="eye-slash"
+        /></span>
+      </span>
     </div>
     <div class="v-form-item-error">
       <span>{{ errorMsg }}</span>
@@ -127,6 +153,7 @@ defineExpose({
       display: inline-block;
       width: 100%;
       border: 1px solid var(--v-input-border-color);
+      font-size: 16px;
       &:focus {
         background: var(--v-input-bg--focus);
       }
@@ -136,6 +163,16 @@ defineExpose({
         font-size: 11px;
         transform: translateY(0px);
       }
+    }
+
+    .password-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      padding: 5px;
+      cursor: pointer;
     }
   }
   .v-form-item-error {

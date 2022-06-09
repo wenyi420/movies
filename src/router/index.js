@@ -15,14 +15,19 @@ const router = createRouter({
       component: () => import("@/views/MovieInfoView.vue"),
     },
     {
+      path: "/movie/netflix/:id",
+      name: "netflixMovieInfo",
+      component: () => import("@/views/MovieInfoView.vue"),
+    },
+    {
       path: "/login",
       name: "login",
       component: () => import("@/views/Login.vue"),
     },
     {
-      path: "/register",
-      name: "register",
-      component: () => import("@/views/Register.vue"),
+      path: "/signup",
+      name: "signup",
+      component: () => import("@/views/Signup.vue"),
     },
   ],
   scrollBehavior() {

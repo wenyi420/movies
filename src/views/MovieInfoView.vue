@@ -4,6 +4,8 @@ import {
   apiGetMovieDetail,
   apiGetYoutubeTrailer,
   apiGetPopularMovie,
+  apiGetNexflixDetail,
+  apiGetNetflixTrailer,
 } from "@/apis/movie.js";
 import { ref, reactive, computed } from "vue";
 import { i18n } from "@/i18n/config.js";
@@ -11,20 +13,35 @@ import { i18n } from "@/i18n/config.js";
 const router = useRouter();
 const route = useRoute();
 const id = route.params.id;
+const isNetflix = route.path.includes("netflix") ? true : false;
 const movieData = ref({});
 const trailerData = ref({});
 const similarMovies = ref([]);
 
 if (id) {
-  apiGetMovieDetail(id).then((res) => {
-    console.log("res", res);
-    movieData.value = res.data;
-    getSimilarMovies(res.data.genres);
-  });
-  apiGetYoutubeTrailer(id).then((res) => {
-    console.log("trailer", res.data);
-    trailerData.value = res.data;
-  });
+  if (isNetflix) {
+    apiGetNexflixDetail(id).then((res) => {
+      console.log("res", res);
+      movieData.value = res.data;
+      getSimilarMovies(res.data.genres);
+    });
+
+    apiGetNetflixTrailer(id).then((res) => {
+      console.log("trailer", res.data);
+      trailerData.value = res.data;
+    });
+  } else {
+    apiGetMovieDetail(id).then((res) => {
+      console.log("res", res);
+      movieData.value = res.data;
+      getSimilarMovies(res.data.genres);
+    });
+
+    apiGetYoutubeTrailer(id).then((res) => {
+      console.log("trailer", res.data);
+      trailerData.value = res.data;
+    });
+  }
 } else {
   alert("error");
 }
@@ -82,9 +99,19 @@ const getGenresName = (genres) => {
   }
 };
 
+const getSeason = (season) => {
+  return `第 ${season} 季`;
+};
+
 const getSimilarMovies = (genres) => {
   if (genres && genres.length) {
-    let tags = genres.map((g) => g.id).join(); // 18,16
+    let tags;
+    if (isNetflix) {
+      tags = genres[0]._id; // 只取第一個避免 netflix genres 容易搜不到
+    } else {
+      tags = genres.map((g) => g.id).join(); // 18,16
+    }
+
     apiGetPopularMovie(1, tags).then((values) => {
       let data = values.data.results;
       similarMovies.value = data.filter((m) => m.id !== movieData.value.id);
@@ -129,13 +156,18 @@ vote_count:257
 <template>
   <div class="movieSection">
     <div class="info">
-      <h1>{{ movieData.title }}</h1>
+      <h1>{{ isNetflix ? movieData.name : movieData.title }}</h1>
       <div class="info-metadata">
         <span class="info-metadata-year">{{
-          getReleaseYear(movieData.release_date)
+          getReleaseYear(
+            isNetflix ? movieData.first_air_date : movieData.release_date
+          )
         }}</span>
         <span class="info-spacer"> | </span>
-        <span class="info-time info-spacer">{{
+        <span class="info-time info-spacer" v-if="isNetflix">{{
+          getSeason(movieData.number_of_seasons)
+        }}</span>
+        <span class="info-time info-spacer" v-else>{{
           getRunTime(movieData.runtime)
         }}</span>
         <span class="info-spacer"> | </span>
@@ -294,6 +326,12 @@ vote_count:257
   top: 0;
   left: 0;
 }
+@media screen and (max-width: 480px) {
+  .dark .movieSection::after {
+    width: 100%;
+    background: rgb(0 0 0 / 40%);
+  }
+}
 
 .light .movieSection::after {
   content: "";
@@ -324,6 +362,12 @@ vote_count:257
   );
   top: 0;
   left: 0;
+}
+@media screen and (max-width: 480px) {
+  .light .movieSection::after {
+    width: 100%;
+    background: rgb(255 255 255 / 50%);
+  }
 }
 
 .nmtitle-section {

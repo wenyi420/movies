@@ -1,12 +1,14 @@
-import req from "./https.js";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user.js";
+
 import Swal from "sweetalert2";
 import "sweetalert2/src/sweetalert2.scss";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycbzDS8ZKSGv89mQRM577ls-yUmHGXTlYFAxTUxavWUMlImrNOkawKaUezvMIV8t-rJYa/exec";
+  "https://script.google.com/macros/s/AKfycby_vmk_DO7MHF9SqkcEPYZYM0O2weMeAdrIFkztHuoRaMtF9EUx0tNRcBZU-A9uJ0DS/exec";
 
-export const apiCreateAccont = (params, callback) => {
-  createAccountHandler(params, callback);
+export const apiCreateAccont = (data, callback) => {
+  createAccountHandler(data, callback);
 
   Swal.fire({
     title: "送出資料中",
@@ -16,7 +18,7 @@ export const apiCreateAccont = (params, callback) => {
   });
 };
 
-export const apiCreateAccountByFB = (callback) => {
+export const apiCreateAccountByFB = () => {
   Swal.fire({
     title: "連接 FB 中",
     didOpen: () => {
@@ -26,7 +28,7 @@ export const apiCreateAccountByFB = (callback) => {
   FB.login(
     function (response) {
       if (response.status === "connected") {
-        getFBUserInfo(callback);
+        getFBUserInfo();
       } else {
         console.error("fb error: ", response);
         Swal.fire({
@@ -45,83 +47,122 @@ export const apiCreateAccountByFB = (callback) => {
 function getFBUserInfo(callback) {
   FB.api("/me?fields=name,email", function (response) {
     console.log("FB me api Successful login for: " + response);
-
+    console.log("FB me name: " + response.name);
+    console.log("FB me email: " + response.email);
     let { name, email } = response;
 
-    let params = `account=${name}&password=${email}&type=fb`;
+    let params = `account=${encodeURI(name)}&password=${email}&role=fb`;
     createAccountHandler(params, callback);
   });
 }
 
-function createAccountHandler(params, callback) {
-  let xmlhttp = new XMLHttpRequest();
-  xmlhttp.open("POST", baseURL);
-  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+// 中文字需要先 encodeURI 否則傳到 google Sheet 會不見
+function createAccountHandler(data, callback = null) {
+  //   data = {
+  //     account: "testfffffff@gmail.com",
+  //     password: "12ffffff3",
+  //     role: "member",
+  //     postType: "movies",
+  //     movies: "[829920,508943]",
+  //   };
 
-  xmlhttp.onreadystatechange = () => {
-    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-      console.log("xmlhttp.responseText", JSON.parse(xmlhttp.responseText));
-      let resp = JSON.parse(xmlhttp.responseText);
+  fetch(baseURL, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8",
+    },
+  })
+    .then((response) => {
+      return response.text().then(function (text) {
+        console.log("resp text", text);
+        let resp = JSON.parse(text);
 
-      let isSuccess = resp.state.includes("success");
-      if (isSuccess) {
-        Swal.fire({
-          icon: "success",
-          title: resp.data.account + "，" + resp.msg,
-          showConfirmButton: false,
-          timer: 2000,
-        }).then(() => {
-          callback(resp);
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: resp.msg,
-          showConfirmButton: false,
-          timer: 2000,
-        });
-      }
-    }
-  };
-  xmlhttp.send(params);
+        let isSuccess = resp.state.includes("success");
+        if (isSuccess) {
+          Swal.fire({
+            icon: "success",
+            title: resp.data.account + "，" + resp.msg,
+            showConfirmButton: false,
+            timer: 2000,
+          }).then(() => {
+            // if (callback && typeof callback === "function") {
+            //   callback(resp);
+            // }
+            toHomePage();
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: resp.msg,
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        }
+      });
+    })
+    .catch((err) => {
+      console.log("Error:" + err);
+    });
 }
 
-export const apiLoginAccont = (params, callback) => {
+export const apiLoginAccont = (data, callback = null) => {
   Swal.fire({
     title: "登入中...",
     didOpen: () => {
       Swal.showLoading();
     },
   });
-  let xmlhttp = new XMLHttpRequest();
-  xmlhttp.open("GET", `${baseURL}?${params}`);
-  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
-  xmlhttp.onreadystatechange = () => {
-    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-      console.log("xmlhttp.responseText", JSON.parse(xmlhttp.responseText));
-      let resp = JSON.parse(xmlhttp.responseText);
+  fetch(baseURL + "?" + new URLSearchParams(data))
+    .then((response) => {
+      return response.text().then(function (text) {
+        let resp = JSON.parse(text);
+        let isSuccess = resp.state.includes("success");
+        if (isSuccess) {
+          Swal.fire({
+            icon: "success",
+            title: resp.data.account + "，" + resp.msg,
+            showConfirmButton: false,
+            timer: 2000,
+          }).then(() => {
+            // todo setData to pinia and go to index
+            // if (callback && typeof callback === "function") {
+            //   callback(resp);
+            // } else {
+            //   //   setUserDataToStores(resp);
+            // }
+            setUserDataToStores(resp, callback);
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: resp.msg,
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        }
+      });
+    })
+    .catch((err) => {
+      console.log("Error:" + err);
+    });
+};
 
-      let isSuccess = resp.state.includes("success");
-      if (isSuccess) {
-        Swal.fire({
-          icon: "success",
-          title: resp.data.account + "，" + resp.msg,
-          showConfirmButton: false,
-          timer: 2000,
-        }).then(() => {
-          // todo setData to pinia and go to index
-          callback(resp);
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: resp.msg,
-          showConfirmButton: false,
-          timer: 2000,
-        });
-      }
-    }
-  };
-  xmlhttp.send(null);
+/**
+ *  data:
+        account: "test@gmail.com"
+        params: {role: 'member', account: 'test@gmail.com', password: '123'}
+        password: 123
+        role: "member",
+        movies: [829920, 508943], // 進去我的片單則 forEach 個別抓取如 movieInfo 方式
+     
+
+    msg: "登入成功"
+    state: "success"
+ */
+const setUserDataToStores = (resp, callback) => {
+  const store = useUserStore();
+  store.setUserData(resp.data);
+  callback();
 };

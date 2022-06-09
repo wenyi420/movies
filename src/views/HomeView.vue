@@ -1,17 +1,70 @@
 <script setup>
+import { onMounted, onUpdated, ref } from "vue";
 import movieCategory from "@/components/slide/movieCategory.vue";
 import { useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user.js";
+
+import { apiGetNexflix } from "@/apis/movie.js";
+import { reactive } from "@vue/reactivity";
+
+const store = useUserStore();
+const { isLogined } = storeToRefs(store);
 
 const router = useRouter();
 
 function goToLogin() {
   router.push("/login");
 }
+
+const movieData = reactive({});
+
+/**
+ * backdrop_path: "/hJgjxqGBvLAQOpsGJFpPVS7YyUn.jpg"
+first_air_date: "2022-03-02"
+genre_ids: [18]
+id: 156135
+name: "Ritmo salvaje"
+origin_country: ['CO']
+original_language: "es"
+original_name: "Ritmo salvaje"
+overview: ""
+popularity: 113.342
+poster_path: "/fNgjy8rDEprVWqeGfzgQ5E0yyIv.jpg"
+vote_average: 7.7
+vote_count: 16
+ */
+apiGetNexflix(3).then((res) => {
+  console.log("netflix data: ,", res);
+  let data = res.data.results;
+  if (data && data.length) {
+    let index = getRandom(15);
+    Object.assign(movieData, data[index]);
+  }
+});
+
+function getRandom(max) {
+  return Math.floor(Math.random() * max);
+}
 </script>
 
 <template>
-  <main>
-    <section class="category-section">
+  <main :class="{ isLogined: isLogined, unLogined: !isLogined }">
+    <section v-if="isLogined">
+      <div class="img-wrapper">
+        <div
+          class="img-bg"
+          :style="{
+            'background-image':
+              'url(' +
+              'https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/' +
+              movieData.backdrop_path +
+              ')',
+          }"
+        ></div>
+      </div>
+    </section>
+    <section v-else class="category-section">
       <div class="container">
         <h1 class="category-title">{{ $t("str_common_movie") }}</h1>
         <div class="category-desc">{{ $t("str_home_category_desc") }}</div>
@@ -19,9 +72,13 @@ function goToLogin() {
     </section>
 
     <!-- 待做成一個 section 組件 包裝 slide -->
+    <movieCategory
+      type="Netflix"
+      :style="{ marginTop: isLogined ? '-150px' : '' }"
+    ></movieCategory>
     <movieCategory type="popular"></movieCategory>
     <movieCategory type="plot"></movieCategory>
-    <movieCategory type="romantic"></movieCategory>
+    <!-- <movieCategory type="romantic"></movieCategory>
     <movieCategory type="violence"></movieCategory>
     <movieCategory type="fear"></movieCategory>
     <movieCategory type="animation"></movieCategory>
@@ -36,14 +93,40 @@ function goToLogin() {
           $t("str_common_join")
         }}</a-button>
       </div>
-    </div>
+    </div> -->
   </main>
+
+  <div id="triggerModal" ref="triggerModal">
+    <h3>這是 hover 後出現</h3>
+  </div>
 </template>
 
 <style lang="scss" scoped>
+#triggerModal {
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+}
+
 main {
   height: 100%;
+  &.unLogined {
+    padding-top: 56px;
+  }
 }
+
+.isLogined .img-wrapper {
+  width: 100%;
+  height: 100vh;
+  .img-bg {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+}
+
 .category-section {
   padding: 0 3%;
   margin-bottom: 20px;

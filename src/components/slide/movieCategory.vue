@@ -1,9 +1,18 @@
 <script setup>
-import SlideMovie from "./SlideMovie.vue";
+import UnLoginSlideMovie from "./UnLoginSlideMovie.vue";
+import LoginSlideMovie from "./LoginSlideMovie.vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user.js";
+const store = useUserStore();
+const { isLogined } = storeToRefs(store);
 
 const props = defineProps(["type"]);
-
 const movieTypeList = [
+  {
+    type: "Netflix",
+    title: "Netflix 影集",
+    tag: "213",
+  },
   {
     type: "popular",
     title: "熱門選擇", // i18n
@@ -48,10 +57,11 @@ const movieTypeList = [
 const target = movieTypeList.find((item) => item.type === props.type);
 </script>
 <template>
-  <div class="movie-slide-list">
+  <div class="movie-slide-list" :class="{ isLogined: isLogined }">
     <h2 class="cate">{{ target.title }}</h2>
     <!-- todo 傳入該 type 所需參數 -->
-    <SlideMovie :tag="target.tag"></SlideMovie>
+    <LoginSlideMovie :tag="target.tag" v-if="isLogined" />
+    <UnLoginSlideMovie :tag="target.tag" v-else />
   </div>
 </template>
 
@@ -59,6 +69,14 @@ const target = movieTypeList.find((item) => item.type === props.type);
 .movie-slide-list {
   padding: 0 3%;
   margin-top: 40px;
+  &.isLogined {
+    padding: 0;
+    .cate {
+      padding-left: 60px;
+      font-size: 1.4vw;
+      font-weight: bold;
+    }
+  }
   .cate {
     font-size: 20px;
     line-height: 27px;

@@ -1,6 +1,105 @@
 <script setup>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { changeI18n } from "@/i18n/config.js";
+import { isMobile } from "@/utils.js";
+const footerList = reactive([
+  {
+    text: "常見問題",
+    link: "",
+  },
+  {
+    text: "說明中心",
+    link: "",
+  },
+  {
+    text: "帳戶",
+    link: "",
+  },
+  {
+    text: "媒體中心",
+    link: "",
+  },
+  {
+    text: "投資人關係",
+    link: "",
+  },
+  {
+    text: "工作機會",
+    link: "",
+  },
+  {
+    text: "觀賞方式",
+    link: "",
+  },
+  {
+    text: "使用條款",
+    link: "",
+  },
+  {
+    text: "隱私權",
+    link: "",
+  },
+  {
+    text: "Cookie 設定",
+    link: "",
+  },
+  {
+    text: "企業資訊",
+    link: "",
+  },
+  {
+    text: "聯絡我們",
+    link: "",
+  },
+  {
+    text: "速度測試",
+    link: "",
+  },
+  {
+    text: "法律聲明",
+    link: "",
+  },
+  {
+    text: "Netflix 獨家",
+    link: "",
+  },
+]);
+const mobileFooterList = reactive([
+  {
+    text: "常見問題",
+    link: "",
+  },
+  {
+    text: "說明中心",
+    link: "",
+  },
+  {
+    text: "使用條款",
+    link: "",
+  },
+  {
+    text: "隱私權",
+    link: "",
+  },
+  {
+    text: "Cookie 設定",
+    link: "",
+  },
+  {
+    text: "企業資訊",
+    link: "",
+  },
+]);
+
+const footerLinks = getFooterLinks();
+
+function getFooterLinks() {
+  if (isMobile()) {
+    return mobileFooterList;
+  } else {
+    return footerList;
+  }
+}
 
 const handleChange = (lang) => {
   changeI18n(lang);
@@ -16,23 +115,12 @@ const lang = ref("zh-TW");
         <a>有疑問嗎？請聯絡我們。</a>
       </div>
       <ul class="footer-link-section">
-        <li class="footer-link-item">
-          <a class="footer-link" href="javascript:;">常見問題</a>
-        </li>
-        <li class="footer-link-item">
-          <a class="footer-link" href="javascript:;">常見問題</a>
-        </li>
-        <li class="footer-link-item">
-          <a class="footer-link" href="javascript:;">常見問題</a>
-        </li>
-        <li class="footer-link-item">
-          <a class="footer-link" href="javascript:;">常見問題</a>
-        </li>
-        <li class="footer-link-item">
-          <a class="footer-link" href="javascript:;">常見問題</a>
-        </li>
-        <li class="footer-link-item">
-          <a class="footer-link" href="javascript:;">常見問題</a>
+        <li
+          class="footer-link-item"
+          v-for="item in footerLinks"
+          :key="item.text"
+        >
+          <a class="footer-link" href="javascript:;">{{ item.text }}</a>
         </li>
       </ul>
       <div class="lang-section-container">
@@ -69,6 +157,7 @@ body.b-transition footer {
   margin-top: 0;
   background: rgba(0, 0, 0, 0.75);
   z-index: 1;
+  border-top: 1px solid var(--footer-text-color);
   .site-footer {
     max-width: 1000px;
     margin: 0 auto;
@@ -104,7 +193,7 @@ body.b-transition footer {
     .footer-link-item {
       box-sizing: border-box;
       padding: 0;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       display: inline-block;
       min-width: 100px;
       width: 25%;
@@ -112,6 +201,11 @@ body.b-transition footer {
       vertical-align: top;
       .footer-link {
         font-size: 13px;
+      }
+    }
+    @media screen and (max-width: 480px) {
+      .footer-link-item {
+        width: 50%;
       }
     }
   }

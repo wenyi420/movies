@@ -38,3 +38,22 @@ export const apiGetYoutubeTrailer = (id) =>
     api_key: apiKey,
     language: language,
   });
+
+export const apiGetNexflix = (page = 1) =>
+  req("get", `${baseURL}/discover/tv`, {
+    api_key: apiKey,
+    language: language,
+    with_networks: 213,
+    page: page,
+  });
+
+export const apiGetNexflixDetail = (id) =>
+  req("get", `${baseURL}/tv/${id}`, {
+    api_key: apiKey,
+    language: language,
+  });
+export const apiGetNetflixTrailer = (id) =>
+  req("get", `${baseURL}/tv/${id}/videos`, {
+    api_key: apiKey,
+    language: language,
+  });
