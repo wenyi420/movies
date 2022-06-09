@@ -14,7 +14,7 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons-vue";
 import { apiGetPopularMovie, apiGetNexflix } from "@/apis/movie.js";
 import { useRouter } from "vue-router";
 import noImg from "@/assets/image/noImg.svg";
-import movieImg from "@/assets/image/MovieSlideImgBox.png";
+import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
 
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
@@ -50,7 +50,8 @@ Promise.all([m1, m2]).then(async (values) => {
   movies.value = result.map((d) => {
     return {
       id: d.id,
-      url: d.poster_path,
+      //   url: d.poster_path,
+      url: d.backdrop_path, // 改長寬的圖
       title: isNetflix ? d.name : d.title,
     };
   });
@@ -107,8 +108,8 @@ function INITswiper() {
         spaceBetween: 14,
       },
       1024: {
-        slidesPerGroup: 8,
-        slidesPerView: 8,
+        slidesPerGroup: 6,
+        slidesPerView: 6,
         spaceBetween: 14,
       },
     },
@@ -171,6 +172,11 @@ function mouseoverHandler(e) {
       let index = parent.dataset.swiperSlideIndex;
       let movie = movies.value[index];
       const { x, y, width, height } = getCoords(e.target, "center");
+      console.log(
+        "slidePrev.value.getBoundingClientRect()?.width",
+        slidePrev.value.getBoundingClientRect()?.width
+      );
+      const bodyWidth = document.body.getBoundingClientRect()?.width;
       //   triggerModal.style.position = "absolute";
       //   triggerModal.style.left = `${x}px`;
       //   triggerModal.style.top = `${y}px`;
@@ -180,6 +186,9 @@ function mouseoverHandler(e) {
         width,
         height,
         movie,
+        // 處理 slide 前後 sacle 時往左放大與往右放大
+        isFirstItem: x - width < 0 ? true : false,
+        isLastItem: x + width > bodyWidth ? true : false,
       });
     }
   }, 500);
@@ -204,6 +213,8 @@ const createMovieModal = async (data) => {
       height: data.height,
       imgurl: data.movie.url,
       imgbox: movieImg,
+      isFirstItem: data.isFirstItem,
+      isLastItem: data.isLastItem,
     },
     appContext,
   });
@@ -294,6 +305,7 @@ const getCoords = (element, position) => {
 
 onUpdated(() => {
   console.log(itemRefs);
+
   itemRefs.forEach((item) => {
     item.addEventListener("mouseover", mouseoverHandler);
     item.addEventListener("mouseleave", mouseLeaveHandler);
