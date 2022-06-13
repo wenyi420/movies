@@ -36,6 +36,7 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+
 .loginPage {
   padding-top: 0px;
   position: relative;

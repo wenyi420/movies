@@ -1,15 +1,24 @@
 <script setup>
 import { onMounted, onUpdated, ref } from "vue";
+
 import movieCategory from "@/components/slide/movieCategory.vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
+import { useMovieModalStore } from "@/stores/movieModal.js";
+import { i18n } from "@/i18n/config.js";
 
-import { apiGetNexflix } from "@/apis/movie.js";
+import { apiGetNexflix, apiGetPopularMovie } from "@/apis/movie.js";
 import { reactive } from "@vue/reactivity";
+
+// import popupModal from "@/components/popupModal.vue";
+import MovieModal from "@/components/movieModal.vue";
 
 const store = useUserStore();
 const { isLogined } = storeToRefs(store);
+
+const movieModalStore = useMovieModalStore();
+const { isShow } = storeToRefs(movieModalStore);
 
 const router = useRouter();
 
@@ -46,11 +55,51 @@ apiGetNexflix(3).then((res) => {
 function getRandom(max) {
   return Math.floor(Math.random() * max);
 }
+
+const getFirstSentence = (info) => {
+  if (info) {
+    let searchText;
+    if (i18n.global.locale === "zh-TW") {
+      searchText = "。";
+    }
+    if (i18n.global.locale === "en") {
+      searchText = ".";
+    }
+    return info.split(searchText)[0] + searchText;
+  }
+  return "";
+};
+
+const modal = ref(null);
+function showModal() {
+  console.log("movieData.genres", movieData.genre_ids);
+  getSimilarMovies(movieData.genre_ids);
+}
+
+const similarMovies = ref([]);
+const getSimilarMovies = (genres) => {
+  if (genres && genres.length) {
+    let tag = genres[0]._id;
+
+    apiGetPopularMovie(1, tag).then((values) => {
+      let data = values.data.results;
+
+      similarMovies.value = data.filter((m) => m.id !== movieData.id);
+      // modal.value?.showModalHandler();
+
+      movieData.similarMovies = similarMovies.value;
+
+      movieModalStore.resetMovieData(movieData);
+      isShow.value = true;
+      // modal.value?.setMovieData(movieData);
+    });
+  }
+};
 </script>
 
 <template>
   <main :class="{ isLogined: isLogined, unLogined: !isLogined }">
-    <section v-if="isLogined">
+    <section v-if="isLogined" class="banner-movie-wrapper">
       <div class="img-wrapper">
         <div
           class="img-bg"
@@ -62,6 +111,57 @@ function getRandom(max) {
               ')',
           }"
         ></div>
+      </div>
+      <div class="banner-info-wrapper">
+        <div class="movie-title">
+          {{ movieData.name }}
+        </div>
+        <div class="movie-desc">
+          {{ getFirstSentence(movieData.overview) }}
+        </div>
+        <div class="movie-btns-wrapper">
+          <div class="movie-btn play">
+            <div>
+              <span class="movie-btn-icon">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="Hawkins-Icon Hawkins-Icon-Standard"
+                >
+                  <path
+                    d="M4 2.69127C4 1.93067 4.81547 1.44851 5.48192 1.81506L22.4069 11.1238C23.0977 11.5037 23.0977 12.4963 22.4069 12.8762L5.48192 22.1849C4.81546 22.5515 4 22.0693 4 21.3087V2.69127Z"
+                    fill="currentColor"
+                  ></path>
+                </svg>
+              </span>
+              <span class="movie-btn-text">播放</span>
+            </div>
+          </div>
+          <div class="movie-btn info" @click="showModal">
+            <div>
+              <span class="movie-btn-icon"
+                ><svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="Hawkins-Icon Hawkins-Icon-Standard"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3ZM1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12ZM13 10V18H11V10H13ZM12 8.5C12.8284 8.5 13.5 7.82843 13.5 7C13.5 6.17157 12.8284 5.5 12 5.5C11.1716 5.5 10.5 6.17157 10.5 7C10.5 7.82843 11.1716 8.5 12 8.5Z"
+                    fill="currentColor"
+                  ></path></svg
+              ></span>
+              <span class="movie-btn-text">詳細資訊</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
     <section v-else class="category-section">
@@ -99,6 +199,11 @@ function getRandom(max) {
   <div id="triggerModal" ref="triggerModal">
     <h3>這是 hover 後出現</h3>
   </div>
+
+  <!-- <popupModal ref="modal">
+
+  </popupModal> -->
+  <MovieModal ref="modal" />
 </template>
 
 <style lang="scss" scoped>
@@ -115,15 +220,80 @@ main {
   }
 }
 
-.isLogined .img-wrapper {
-  width: 100%;
-  height: 100vh;
-  .img-bg {
-    width: 100%;
-    height: 100%;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+.isLogined {
+  .banner-movie-wrapper {
+    .img-wrapper {
+      width: 100%;
+      height: 100vh;
+      .img-bg {
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+      }
+    }
+    .banner-info-wrapper {
+      position: absolute;
+      left: 3%;
+      bottom: 25%;
+      width: 40%;
+      .movie-title {
+        font-size: 3vw;
+        text-shadow: 1px 1px 8px rgb(0 0 0 / 80%);
+        letter-spacing: 10px;
+      }
+      .movie-desc {
+        font-size: 1.2vw;
+        text-shadow: 1px 1px 8px rgb(0 0 0 / 80%);
+        margin-bottom: 18px;
+      }
+
+      .movie-btns-wrapper {
+        .movie-btn {
+          display: inline-block;
+          padding: 10.5px 31.5px;
+          border-radius: 5px;
+          margin-right: 12px;
+          cursor: pointer;
+
+          &.play {
+            background: #fff;
+            color: #000;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.75);
+            }
+          }
+          &.info {
+            background: rgba(109, 109, 110, 0.8);
+            color: #fff;
+            &:hover {
+              background: rgba(109, 109, 110, 0.6);
+            }
+          }
+
+          > div {
+            display: flex;
+            align-items: center;
+          }
+          .movie-btn-icon {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+
+            svg {
+              width: 34px;
+              height: 34px;
+            }
+          }
+          .movie-btn-text {
+            font-size: 23px;
+            font-weight: bold;
+          }
+        }
+      }
+    }
   }
 }
 

@@ -2,6 +2,7 @@
 import { useRouter } from "vue-router";
 import switchAppearance from "@/components/switch-appearance.vue";
 import { onMounted, ref } from "@vue/runtime-core";
+import profilePic from "@/assets/image/profilePic.png";
 
 const router = useRouter();
 
@@ -78,18 +79,40 @@ onMounted(() => {
         </svg>
       </span>
       <a-space :size="25">
-        <span>首頁</span>
-        <span>我的片單</span>
+        <a>首頁</a>
+        <a>我的片單</a>
       </a-space>
     </div>
     <div class="right">
-      <a-space>
-        <span class="switch-styleMode">
+      <a-space :size="15">
+        <div class="searchBox">
+          <div class="searchBox-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="search-icon"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M13 11C13 13.7614 10.7614 16 8 16C5.23858 16 3 13.7614 3 11C3 8.23858 5.23858 6 8 6C10.7614 6 13 8.23858 13 11ZM14.0425 16.2431C12.5758 17.932 10.4126 19 8 19C3.58172 19 0 15.4183 0 11C0 6.58172 3.58172 3 8 3C12.4183 3 16 6.58172 16 11C16 11.9287 15.8417 12.8205 15.5507 13.6497L24.2533 18.7028L22.7468 21.2972L14.0425 16.2431Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </div>
+        </div>
+        <div class="switch-styleMode">
           <switchAppearance />
-        </span>
-        <span class="header-text">
-          {{ $t("str_header_component_unlimitedHours") }}
-        </span>
+        </div>
+        <div class="account-dropdown-button">
+          <div class="account-img">
+            <img :src="profilePic" alt="" />
+          </div>
+          <span class="arrow-icon"></span>
+        </div>
       </a-space>
     </div>
   </header>
@@ -116,10 +139,36 @@ header {
   color: var(--color-text);
   .right {
     font-size: 13px;
+
+    .account-dropdown-button {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+
+      .account-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .arrow-icon {
+        margin-left: 10px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 5px 5px 0 5px;
+        border-color: #fff transparent transparent transparent;
+        transition: transform 367ms cubic-bezier(0.21, 0, 0.07, 1);
+      }
+    }
   }
   .left {
     display: flex;
     align-items: center;
+    a {
+      color: #fff;
+    }
     .logo,
     .mb-logo {
       fill: var(--color-main);

@@ -2,12 +2,11 @@
 import {
   ref,
   nextTick,
-  onBeforeUpdate,
   onUpdated,
   onUnmounted,
   getCurrentInstance,
+  inject,
 } from "vue";
-import { onMounted } from "@vue/runtime-core";
 import Swiper from "swiper/bundle";
 import "swiper/css/bundle";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons-vue";
@@ -15,75 +14,21 @@ import { apiGetPopularMovie, apiGetNexflix } from "@/apis/movie.js";
 import { useRouter } from "vue-router";
 import noImg from "@/assets/image/noImg.svg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
-
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user.js";
-
 import renderComponent from "@/renderComponent";
 
 const router = useRouter();
 const movies = ref([]);
 const props = defineProps(["tag"]);
 const isNetflix = props.tag === "213" ? true : false;
+let hoverTimer = null;
 
-let m1, m2;
-if (!props.tag) {
-  m1 = apiGetPopularMovie(1);
-  m2 = apiGetPopularMovie(2);
-} else {
-  // Netflix
-  if (isNetflix) {
-    m1 = apiGetNexflix(1);
-    m2 = apiGetNexflix(2);
-  } else {
-    m1 = apiGetPopularMovie(1, props.tag);
-    m2 = apiGetPopularMovie(2, props.tag);
-  }
-}
-
-Promise.all([m1, m2]).then(async (values) => {
-  let result = [];
-  values.forEach((v) => {
-    result = result.concat(v.data.results);
-  });
-
-  movies.value = result.map((d) => {
-    return {
-      id: d.id,
-      //   url: d.poster_path,
-      url: d.backdrop_path, // 改長寬的圖
-      title: isNetflix ? d.name : d.title,
-    };
-  });
-  getMoviesList();
-
-  // 待 dom 更新後才 setLazyLoad 避免查無 dom el 導致 setLazy 無效
-  await nextTick();
-  INITswiper();
-  setLazyLoad();
-});
-
-const MAX_LIST_LENGTH = 7; // 最多 7 * PRE_VIEW 個電影
-const PRE_VIEW = 8;
-const Page = ref(0);
-
-// 將 query 到的 movie 整理 最多 7 個
-function getMoviesList() {
-  let total = MAX_LIST_LENGTH * PRE_VIEW;
-  if (movies.value.length > total) {
-    movies.value = movies.value.slice(0, total);
-    Page.value = MAX_LIST_LENGTH;
-  } else {
-    let p = Math.floor(movies.value.length / PRE_VIEW);
-    movies.value = movies.value.slice(0, p * PRE_VIEW);
-    Page.value = p;
-  }
-}
+getMovies();
 
 let swiper;
 const swiperEl = ref(null);
 const slideNext = ref(null);
 const slidePrev = ref(null);
+const swiperWrapper = ref(null);
 
 function INITswiper() {
   swiper = new Swiper(swiperEl.value, {
@@ -120,12 +65,154 @@ function INITswiper() {
   });
 }
 
-function goToMovie(id) {
-  if (isNetflix) {
-    // sessionStorage.setItem("isNetflix", true);
-    return router.push({ path: `/movie/netflix/${id}` });
+let destroyComp = null;
+onUnmounted(() => destroyComp?.());
+
+onUpdated(() => {
+  movieSlidesBindHoverEvent();
+});
+
+function movieSlidesBindHoverEvent() {
+  let wrapper = swiperWrapper.value;
+  // 為了抓取到 swiper loop 自己生成的元素，透過 nextTick 後再抓取 dom 添加 eventlistener
+  nextTick(() => {
+    let slides = wrapper.querySelectorAll(".swiper-slide");
+    slides.forEach((item) => {
+      item.addEventListener("mouseover", mouseoverHandler);
+      item.addEventListener("mouseleave", mouseLeaveHandler);
+    });
+  });
+
+  document.body.addEventListener("mouseover", checkIsHovered);
+}
+
+function mouseoverHandler(e) {
+  console.log("e", e);
+  hoverTimer = setTimeout(() => {
+    const parent = e.target.parentElement;
+    if (parent?.dataset?.swiperSlideIndex) {
+      let index = parent.dataset.swiperSlideIndex;
+      let movie = movies.value[index];
+      const { x, y, width, height } = getCoords(e.target, "center");
+      console.log(
+        "slidePrev.value.getBoundingClientRect()?.width",
+        slidePrev.value.getBoundingClientRect()?.width
+      );
+      const bodyWidth = document.body.getBoundingClientRect()?.width;
+      createPreviewMovieModal({
+        x,
+        y,
+        width,
+        height,
+        movie,
+        // 處理 slide 前後 sacle 時往左放大與往右放大
+        isFirstItem: x - width < 0 ? true : false,
+        isLastItem: x + width > bodyWidth ? true : false,
+      });
+    }
+  }, 500);
+}
+function mouseLeaveHandler() {
+  clearTimeout(hoverTimer);
+}
+
+function checkIsHovered(e) {
+  let el = e.target;
+  let target = document.querySelector("#triggerModal");
+  if (el !== target && !target.contains(e.target)) {
+    let previewWrapper = target.querySelector(".previewMovie-wrapper");
+    if (previewWrapper) {
+      previewWrapper.classList.remove("active");
+      setTimeout(() => {
+        destroyComp?.();
+      }, 295);
+    }
   }
-  return router.push({ path: `/movie/${id}` });
+}
+
+// const injectMovieData = inject("movieModal");
+//     console.log("movieModalData", injectMovieData);
+
+const { appContext } = getCurrentInstance();
+const createPreviewMovieModal = async (data) => {
+  destroyComp?.();
+  console.log("createMovieModal data", data);
+  destroyComp = renderComponent({
+    el: "#triggerModal",
+    component: (await import("@/components/previewSlideMovie.vue")).default,
+    props: {
+      key: data.movie.id,
+      movie: data.movie,
+      left: data.x,
+      top: data.y,
+      width: data.width,
+      height: data.height,
+      imgurl: data.movie.url,
+      imgbox: movieImg,
+      isFirstItem: data.isFirstItem,
+      isLastItem: data.isLastItem,
+      //   injectMovieData: injectMovieData,
+    },
+    appContext,
+  });
+};
+
+function getMovies() {
+  let m1, m2;
+  if (!props.tag) {
+    m1 = apiGetPopularMovie(1);
+    m2 = apiGetPopularMovie(2);
+  } else {
+    // Netflix
+    if (isNetflix) {
+      m1 = apiGetNexflix(1);
+      m2 = apiGetNexflix(2);
+    } else {
+      m1 = apiGetPopularMovie(1, props.tag);
+      m2 = apiGetPopularMovie(2, props.tag);
+    }
+  }
+
+  Promise.all([m1, m2]).then(async (values) => {
+    let result = [];
+    values.forEach((v) => {
+      result = result.concat(v.data.results);
+    });
+
+    /**
+     * adult: false
+        backdrop_path: "/gUNRlH66yNDH3NQblYMIwgZXJ2u.jpg"
+        genre_ids: (3) [14, 28, 12]
+        id: 453395
+        original_language: "en"
+        original_title: "Doctor Strange in the Multiverse of Madness"
+        overview: "漫威將開拓多元宇宙，漫威宇宙第四階段公開《奇異博士》續集。藉由電影、影集、動畫所呈現的多重宇宙世界觀，將整個故事格局進一步擴大。  劇情描述，多重宇宙正式開啟，世界變得加倍危險。  熟知的一切邏輯都將被打破……最強至尊法師聯手最強女巫，是否有機會拯救世界？"
+        popularity: 2707.539
+        poster_path: "/xSNSQSuzEsVIVMDlcsfK9gw7GQC.jpg"
+        release_date: "2022-05-04"
+        title: "奇異博士2：失控多重宇宙"
+        video: false
+        vote_average: 7.4
+        vote_count: 2238
+     */
+
+    movies.value = result.map((d) => {
+      console.log("d", d);
+      return {
+        id: d.id,
+        //   url: d.poster_path,
+        url: d.backdrop_path, // 改長寬的圖
+        title: isNetflix ? d.name : d.title,
+        score: d.vote_average,
+        movie: d,
+      };
+    });
+
+    // 待 dom 更新後才 setLazyLoad 避免查無 dom el 導致 setLazy 無效
+    await nextTick();
+    INITswiper();
+    setLazyLoad();
+  });
 }
 
 function setLazyLoad() {
@@ -148,96 +235,7 @@ function setLazyLoad() {
   imgs.forEach((v) => observer.observe(v));
 }
 
-let itemRefs = [];
-
-const setItemRef = (el) => {
-  if (el) {
-    itemRefs.push(el);
-  }
-};
-
-const { appContext } = getCurrentInstance();
-let counter = 1;
-let destroyComp = null;
-
-onUnmounted(() => destroyComp?.());
-
-let hoverTimer = null;
-
-function mouseoverHandler(e) {
-  console.log("e", e);
-  hoverTimer = setTimeout(() => {
-    const parent = e.target.parentElement;
-    if (parent?.dataset?.swiperSlideIndex) {
-      let index = parent.dataset.swiperSlideIndex;
-      let movie = movies.value[index];
-      const { x, y, width, height } = getCoords(e.target, "center");
-      console.log(
-        "slidePrev.value.getBoundingClientRect()?.width",
-        slidePrev.value.getBoundingClientRect()?.width
-      );
-      const bodyWidth = document.body.getBoundingClientRect()?.width;
-      //   triggerModal.style.position = "absolute";
-      //   triggerModal.style.left = `${x}px`;
-      //   triggerModal.style.top = `${y}px`;
-      createMovieModal({
-        x,
-        y,
-        width,
-        height,
-        movie,
-        // 處理 slide 前後 sacle 時往左放大與往右放大
-        isFirstItem: x - width < 0 ? true : false,
-        isLastItem: x + width > bodyWidth ? true : false,
-      });
-    }
-  }, 500);
-}
-function mouseLeaveHandler() {
-  clearTimeout(hoverTimer);
-}
-
-const createMovieModal = async (data) => {
-  destroyComp?.();
-  counter++;
-  console.log("createMovieModal data", data);
-  destroyComp = renderComponent({
-    el: "#triggerModal",
-    component: (await import("@/components/movieModal.vue")).default,
-    props: {
-      key: data.movie.id,
-      title: data.movie.title,
-      left: data.x,
-      top: data.y,
-      width: data.width,
-      height: data.height,
-      imgurl: data.movie.url,
-      imgbox: movieImg,
-      isFirstItem: data.isFirstItem,
-      isLastItem: data.isLastItem,
-    },
-    appContext,
-  });
-};
-
-let body = document.body;
-function checkIsHovered(e) {
-  // if(e.target.contain)
-  let el = e.target;
-  let target = document.querySelector("#triggerModal");
-  if (el !== target && !target.contains(e.target)) {
-    let modalwrapper = target.querySelector(".movieModal-wrapper");
-    if (modalwrapper) {
-      modalwrapper.classList.remove("active");
-      setTimeout(() => {
-        destroyComp?.();
-      }, 295);
-    }
-  }
-}
-body.addEventListener("mouseover", checkIsHovered);
-
-const getCoords = (element, position) => {
+function getCoords(element, position) {
   const { top, left, width, height } = element.getBoundingClientRect();
   let point;
   switch (position) {
@@ -301,29 +299,23 @@ const getCoords = (element, position) => {
   point.height = height;
   console.log("point", point);
   return point;
-};
+}
 
-onUpdated(() => {
-  console.log(itemRefs);
-
-  itemRefs.forEach((item) => {
-    item.addEventListener("mouseover", mouseoverHandler);
-    item.addEventListener("mouseleave", mouseLeaveHandler);
-  });
-});
+function goToMovie(id) {
+  if (isNetflix) {
+    // sessionStorage.setItem("isNetflix", true);
+    return router.push({ path: `/movie/netflix/${id}` });
+  }
+  return router.push({ path: `/movie/${id}` });
+}
 </script>
 
 <template>
   <div class="slide-content">
     <div class="swiper" ref="swiperEl">
-      <div class="swiper-wrapper">
+      <div class="swiper-wrapper" ref="swiperWrapper">
         <!-- Slides -->
-        <div
-          class="swiper-slide"
-          :key="index"
-          v-for="(movie, index) in movies"
-          :ref="setItemRef"
-        >
+        <div class="swiper-slide" :key="index" v-for="(movie, index) in movies">
           <a
             class="movie-item"
             :data-src="movie.url"

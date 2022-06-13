@@ -67,6 +67,8 @@ const target = movieTypeList.find((item) => item.type === props.type);
 
 <style lang="scss" scoped>
 .movie-slide-list {
+  max-width: 100%;
+  overflow-x: hidden;
   padding: 0 3%;
   margin-top: 40px;
   &.isLogined {
