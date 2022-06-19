@@ -86,6 +86,12 @@ const target = movieTypeList.find((item) => item.type === props.type);
         padding-left: 4%;
       }
     }
+    @media screen and (max-width: 480px) {
+      .cate {
+        font-size: 16px;
+        margin-bottom: 0 !important;
+      }
+    }
   }
   .cate {
     font-size: 20px;

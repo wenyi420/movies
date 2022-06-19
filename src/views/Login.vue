@@ -36,7 +36,10 @@ const account = ref(null);
 const password = ref();
 
 function connectFB() {
-  apiCreateAccountByFB();
+  apiCreateAccountByFB(successConnetHandler);
+}
+function successConnetHandler() {
+  toHomePage();
 }
 
 const rememberMe = ref(false);

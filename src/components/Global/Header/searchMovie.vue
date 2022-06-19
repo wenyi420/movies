@@ -145,19 +145,23 @@ function removeSearchListener() {
     transition: ease 0.3s;
   }
   .close-icon {
+    color: var(--color-text);
     position: absolute;
     right: 8px;
     font-size: 22px;
   }
+  .search-icon {
+    color: #fff;
+  }
   &.active {
     .search-input {
       width: 190px;
+      color: var(--color-text);
+    }
+    .search-icon {
+      color: var(--color-text);
     }
   }
-}
-.search-icon {
-  display: flex;
-  flex-wrap: wrap;
 }
 
 @media screen and (max-width: 480px) {

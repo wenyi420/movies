@@ -1,9 +1,9 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "@vue/runtime-core";
-import SwitchAppearance from "@/components/switch-appearance.vue";
-import SearchMovie from "@/components/searchMovie.vue";
-import AccountButton from "@/components/accountButton.vue";
+import SwitchAppearance from "@/components/Global/switch-appearance.vue";
+import SearchMovie from "@/components/Global/Header/searchMovie.vue";
+import AccountButton from "@/components/Global/Header/accountButton.vue";
 
 const router = useRouter();
 

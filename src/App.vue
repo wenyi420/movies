@@ -3,11 +3,14 @@ import { computed, onMounted, ref } from "vue";
 import { RouterView, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
+import { apiUpdateAccount } from "@/apis/googleSheet.js";
 
-import MHeader from "@/components/Header.vue";
-import MFooter from "@/components/Footer.vue";
-import SignupHeader from "@/components/SignupHeader.vue";
+import SignupHeader from "@/components/Global/Header/SignupHeader.vue";
+import MHeader from "@/components/Global/Header/index.vue";
+import MFooter from "@/components/Global/Footer/index.vue";
 import "@/assets/base.css";
+
+checkLoginState();
 
 const route = useRoute();
 
@@ -23,11 +26,20 @@ const { isLogined } = storeToRefs(store);
 
 onMounted(() => {
   document.body.classList.add("b-transition");
-
-  checkLoginState();
 });
 
-function checkLoginState() {}
+// 檢查登入
+function checkLoginState() {
+  let token = localStorage.getItem("token");
+  let _id = localStorage.getItem("_id");
+  if (token && _id) {
+    let data = {
+      token,
+      _id,
+    };
+    apiUpdateAccount(data);
+  }
+}
 </script>
 
 <template>

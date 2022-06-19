@@ -113,6 +113,8 @@ function mouseLeaveHandler() {
 function checkIsHovered(e) {
   let el = e.target;
   let target = document.querySelector("#triggerModal");
+  if (!target) return;
+
   if (el !== target && !target.contains(e.target)) {
     let previewWrapper = target.querySelector(".previewMovie-wrapper");
     if (previewWrapper) {
@@ -128,7 +130,8 @@ const createPreviewMovieModal = async (data) => {
   destroyComp?.();
   destroyComp = renderComponent({
     el: "#triggerModal",
-    component: (await import("@/components/previewSlideMovie.vue")).default,
+    component: (await import("@/components/slide/previewSlideMovie.vue"))
+      .default,
     props: {
       key: data.movie.id,
       movie: data.movie,

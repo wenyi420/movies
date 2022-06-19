@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, onUpdated, ref } from "vue";
 
-import movieCategory from "@/components/slide/movieCategory.vue";
+import MovieCategory from "@/components/slide/movieCategory.vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
@@ -11,7 +11,7 @@ import { i18n } from "@/i18n/config.js";
 import { apiGetNexflix, apiGetPopularMovie } from "@/apis/movie.js";
 import { reactive } from "@vue/reactivity";
 
-import MovieModal from "@/components/movieModal.vue";
+import MovieModal from "@/components/Home/movieModal.vue";
 
 const store = useUserStore();
 const { isLogined } = storeToRefs(store);
@@ -68,6 +68,7 @@ const getSimilarMovies = (genres) => {
       let data = values.data.results;
       similarMovies.value = data.filter((m) => m.id !== movieData.id);
       movieData.similarMovies = similarMovies.value;
+      console.log("setmoviedata", movieData);
       movieModalStore.resetMovieData(movieData);
       isShow.value = true;
     });
@@ -153,13 +154,13 @@ const getSimilarMovies = (genres) => {
 
     <!-- 待做成一個 section 組件 包裝 slide -->
     <div class="main-swiper-wrapper">
-      <movieCategory class="netflix" type="Netflix"></movieCategory>
-      <movieCategory type="popular"></movieCategory>
-      <movieCategory type="plot"></movieCategory>
-      <movieCategory type="romantic"></movieCategory>
-      <movieCategory type="violence"></movieCategory>
-      <movieCategory type="fear"></movieCategory>
-      <movieCategory type="animation"></movieCategory>
+      <MovieCategory class="netflix" type="Netflix" />
+      <MovieCategory type="popular" />
+      <MovieCategory type="plot" />
+      <MovieCategory type="romantic" />
+      <MovieCategory type="violence" />
+      <MovieCategory type="fear" />
+      <MovieCategory type="animation" />
     </div>
     <div class="introl with-gradient-blur" v-if="!isLogined">
       <div class="introl-content">

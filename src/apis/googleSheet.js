@@ -1,11 +1,18 @@
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+function toHomePage() {
+  router.push("/");
+}
 
 import Swal from "sweetalert2";
 import "sweetalert2/src/sweetalert2.scss";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycby_vmk_DO7MHF9SqkcEPYZYM0O2weMeAdrIFkztHuoRaMtF9EUx0tNRcBZU-A9uJ0DS/exec";
+  "https://script.google.com/macros/s/AKfycbwZLI06C_ofSM6afZNtSp_meI4ZR6hYkDhH4Nu3oRfQTqkX5eufbG883GfqqvNbyOeo/exec";
 
 export const apiCreateAccont = (data, callback) => {
   createAccountHandler(data, callback);
@@ -18,7 +25,7 @@ export const apiCreateAccont = (data, callback) => {
   });
 };
 
-export const apiCreateAccountByFB = () => {
+export const apiCreateAccountByFB = (callback) => {
   Swal.fire({
     title: "連接 FB 中",
     didOpen: () => {
@@ -28,7 +35,7 @@ export const apiCreateAccountByFB = () => {
   FB.login(
     function (response) {
       if (response.status === "connected") {
-        getFBUserInfo();
+        getFBUserInfo(callback);
       } else {
         console.error("fb error: ", response);
         Swal.fire({
@@ -86,10 +93,9 @@ function createAccountHandler(data, callback = null) {
             showConfirmButton: false,
             timer: 2000,
           }).then(() => {
-            // if (callback && typeof callback === "function") {
-            //   callback(resp);
-            // }
-            toHomePage();
+            if (callback && typeof callback === "function") {
+              callback(resp);
+            }
           });
         } else {
           Swal.fire({
@@ -126,12 +132,6 @@ export const apiLoginAccont = (data, callback = null) => {
             showConfirmButton: false,
             timer: 2000,
           }).then(() => {
-            // todo setData to pinia and go to index
-            // if (callback && typeof callback === "function") {
-            //   callback(resp);
-            // } else {
-            //   //   setUserDataToStores(resp);
-            // }
             setUserDataToStores(resp, callback);
           });
         } else {
@@ -141,6 +141,30 @@ export const apiLoginAccont = (data, callback = null) => {
             showConfirmButton: false,
             timer: 2000,
           });
+        }
+      });
+    })
+    .catch((err) => {
+      console.log("Error:" + err);
+    });
+};
+
+export const apiUpdateAccount = (data) => {
+  fetch(baseURL + "?" + new URLSearchParams(data))
+    .then((response) => {
+      return response.text().then(function (text) {
+        let resp = JSON.parse(text);
+        let isSuccess = resp.state.includes("success");
+        if (isSuccess) {
+          console.log("apiUpdateAccount success");
+          setUserDataToStores(resp);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "token 已失效，請重新登入",
+          });
+
+          clearUserData();
         }
       });
     })
@@ -159,10 +183,18 @@ export const apiLoginAccont = (data, callback = null) => {
      
 
     msg: "登入成功"
-    state: "success"
+    state: "success",
+    token: token
  */
 const setUserDataToStores = (resp, callback) => {
   const store = useUserStore();
-  store.setUserData(resp.data);
-  callback();
+  store.setUserData(resp.data, resp.token);
+  if (callback && typeof callback === "function") {
+    callback();
+  }
+};
+
+const clearUserData = () => {
+  const store = useUserStore();
+  store.logOutHanlder();
 };

@@ -111,6 +111,11 @@ body.modal-open{
   width: calc(100% - 17px);
   overflow: hidden;
 }
+body.mobile-modal-open{
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
 
 
 

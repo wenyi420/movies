@@ -5,6 +5,12 @@ export const useUserStore = defineStore("user", () => {
   const userData = ref({});
 
   const isLogined = ref(false);
+
+  let token = localStorage.getItem("token");
+  let _id = localStorage.getItem("_id");
+  if (token && _id) {
+    isLogined.value = true;
+  }
   /**
    * @param data
    * {
@@ -17,24 +23,23 @@ export const useUserStore = defineStore("user", () => {
    */
 
   // 將登入後的資料存入
-  let setUserData = (data) => {
-    console.log("使用 pinia set usr data", data);
+  let setUserData = (data, token) => {
     userData.value = data;
     // Object.assign(userData, data);
     isLogined.value = true;
+
+    localStorage.setItem("_id", data._id);
+    localStorage.setItem("token", token);
   };
 
   // 登出
   let logOutHanlder = () => {
     // Object.assign(userData, {});
     userData.value = {};
+    localStorage.removeItem("token");
+    localStorage.removeItem("_id");
     isLogined.value = false;
   };
-
-  // 進入網頁時檢查是否以登入
-  // checkLoginState() {
-
-  // }
 
   return { userData, isLogined, setUserData, logOutHanlder };
 });

@@ -2,6 +2,10 @@
 import { ref, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useMovieModalStore } from "@/stores/movieModal.js";
+import { isMobile } from "@/utils.js";
+
+const _isMobile = isMobile();
+const modalOpenClass = _isMobile ? "mobile-modal-open" : "modal-open";
 
 const movieModalStore = useMovieModalStore();
 const { isShow } = storeToRefs(movieModalStore);
@@ -12,42 +16,45 @@ const isShowModal = ref(false);
 
 watch(isShowModal, (v) => {
   if (v) {
-    document.body.classList.add("modal-open");
+    document.body.classList.add(modalOpenClass);
   }
-});
-
-onMounted(() => {
-  setClickOutSideEvent();
 });
 
 defineExpose({
   showModalHandler,
 });
 
-function setClickOutSideEvent() {
-  modalContainer.value.addEventListener("click", (e) => {
-    const clickEl = e.target;
-    const isClickOutSide =
-      clickEl !== modal.value && !modal.value.contains(clickEl);
-    if (isClickOutSide) {
-      closeModalHandler();
-    }
-  });
-}
-
 function showModalHandler() {
+  addClickOutSideEvent();
   isShowModal.value = true;
 }
 
 function closeModalHandler() {
+  removeClickOutSideEvent();
   isShowModal.value = false;
   isShow.value = false;
 
   // 等淡出動畫結束, 避免雙滾軸出現
   setTimeout(() => {
-    document.body.classList.remove("modal-open");
+    document.body.classList.remove(modalOpenClass);
     INITModalscrollToTop();
   }, 300);
+}
+
+function addClickOutSideEvent() {
+  modalContainer.value.addEventListener("click", checkClickOutSide);
+}
+function removeClickOutSideEvent() {
+  modalContainer.value.removeEventListener("click", checkClickOutSide);
+}
+
+function checkClickOutSide(e) {
+  const clickEl = e.target;
+  const isClickOutSide =
+    clickEl !== modal.value && !modal.value.contains(clickEl);
+  if (isClickOutSide) {
+    closeModalHandler();
+  }
 }
 
 // 解決 modal 捲動過導致再次打開時仍是之前捲動的位置

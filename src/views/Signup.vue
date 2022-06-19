@@ -14,6 +14,9 @@ const router = useRouter();
 function toLoginPage() {
   router.push("/login");
 }
+function toHomePage() {
+  router.push("/");
+}
 
 const store = useUserStore();
 const { users, count } = storeToRefs(store);
@@ -29,7 +32,10 @@ const account = ref(null);
 const password = ref();
 
 function connectFB() {
-  apiCreateAccountByFB();
+  apiCreateAccountByFB(successConnetHandler);
+}
+function successConnetHandler() {
+  toHomePage();
 }
 
 const rememberMe = ref(false);
@@ -85,6 +91,7 @@ function singup() {
 
   function successCreateHandler(res) {
     console.log("res", res);
+    toLoginPage();
   }
 }
 </script>

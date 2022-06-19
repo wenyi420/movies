@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, reactive } from "vue";
-import PopupModal from "@/components/popupModal.vue";
+import PopupModal from "@/components/Global/Modal/popupModal.vue";
 import noImg from "@/assets/image/noImg.svg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
 import { i18n } from "@/i18n/config.js";
@@ -28,7 +28,7 @@ function setMovieData() {
   movieData.value = data.value;
 }
 
-const getFirstSentence = (info) => {
+function getFirstSentence(info) {
   if (info) {
     let result = "";
     const MAX_LENGTH = 65;
@@ -47,7 +47,11 @@ const getFirstSentence = (info) => {
     return result + searchText;
   }
   return "";
-};
+}
+
+function getMovieScore(score) {
+  return score * 10;
+}
 
 defineExpose({
   showModalHandler,
@@ -136,7 +140,9 @@ defineExpose({
             <div class="img-wrapper-mask"></div>
           </div>
           <div class="movie-modal-info">
-            <div class="match-score">93% 適合你</div>
+            <div class="match-score">
+              {{ getMovieScore(movieData.vote_average) }}% 適合你
+            </div>
             <div class="desc">{{ getFirstSentence(movieData.overview) }}</div>
           </div>
           <div class="similarMovies">
@@ -167,7 +173,7 @@ defineExpose({
                     <div class="left">
                       <div class="title">{{ item.title }}</div>
                       <div class="match-score">
-                        {{ item.vote_average }}% 適合你
+                        {{ getMovieScore(item.vote_average) }}% 適合你
                       </div>
                     </div>
                     <div class="right">

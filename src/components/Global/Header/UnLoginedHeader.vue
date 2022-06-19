@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from "vue-router";
-import switchAppearance from "@/components/switch-appearance.vue";
+import switchAppearance from "@/components/Global/switch-appearance.vue";
 
 const router = useRouter();
 
