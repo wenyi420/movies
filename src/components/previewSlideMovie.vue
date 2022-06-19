@@ -74,7 +74,6 @@ export default defineComponent({
         isActive.value = true;
       }, 20);
     });
-    onUnmounted(() => console.log("unmounting title", props.movie));
     onBeforeUnmount(() => {
       isActive.value = false;
     });
@@ -85,7 +84,6 @@ export default defineComponent({
 
     const similarMovies = ref([]);
     function showMovieModal() {
-      console.log("props.movie", props.movie);
       getSimilarMovies(props.movie.movie.genre_ids);
     }
 
@@ -105,7 +103,6 @@ export default defineComponent({
             overview: movieData.overview,
             similarMovies: similarMovies.value,
           };
-          console.log("preview movieData: ", reuslt);
 
           movieModalStore.resetMovieData(reuslt);
           isShow.value = true;
@@ -265,7 +262,7 @@ export default defineComponent({
   transition: ease 0.3s;
   width: 100%;
   background: var(--color-background);
-  color: #fff;
+  color: var(--color-text);
   opacity: 0;
   padding: 1rem;
   overflow: hidden;
@@ -306,15 +303,50 @@ export default defineComponent({
         height: 18px;
       }
     }
+    @media screen and (max-width: 1440px) {
+      .infoIcon-btn {
+        width: 24px;
+        height: 24px;
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+    @media screen and (max-width: 480px) {
+      .infoIcon-btn {
+        width: 20px;
+        height: 20px;
+        svg {
+          width: 12px;
+          height: 12px;
+        }
+      }
+    }
   }
   .movie-title {
     font-size: 16px;
     margin-bottom: 0 !important;
+    font-weight: bold;
   }
   .match-score {
     color: #46d369;
     font-weight: bold;
     font-size: 12px;
   }
+}
+@media screen and (max-width: 480px) {
+  .info {
+    padding: 8px;
+    .movie-title {
+      font-size: 12px;
+    }
+  }
+}
+
+.light .infoIcon-btn {
+  background-color: #fff !important;
+  border-color: var(--border-color) !important;
+  color: var(---color-tex) !important;
 }
 </style>

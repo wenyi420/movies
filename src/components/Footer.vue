@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, defineProps } from "vue";
 import { changeI18n } from "@/i18n/config.js";
 import { isMobile } from "@/utils.js";
 const footerList = reactive([
@@ -93,6 +93,9 @@ const mobileFooterList = reactive([
 
 const footerLinks = getFooterLinks();
 
+const props = defineProps(["isLogined"]);
+const isLogined = props.isLogined;
+
 function getFooterLinks() {
   if (isMobile()) {
     return mobileFooterList;
@@ -123,7 +126,7 @@ const lang = ref("zh-TW");
           <a class="footer-link" href="javascript:;">{{ item.text }}</a>
         </li>
       </ul>
-      <div class="lang-section-container">
+      <div class="lang-section-container" v-if="!isLogined">
         <a-select
           ref="select"
           v-model:value="lang"

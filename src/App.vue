@@ -23,7 +23,11 @@ const { isLogined } = storeToRefs(store);
 
 onMounted(() => {
   document.body.classList.add("b-transition");
+
+  checkLoginState();
 });
+
+function checkLoginState() {}
 </script>
 
 <template>
@@ -31,12 +35,11 @@ onMounted(() => {
     <SignupHeader v-if="isLoginPage" />
     <MHeader v-else :isLogined="isLogined" />
     <RouterView :key="$route.fullPath"></RouterView>
-    <MFooter />
+    <MFooter :isLogined="isLogined" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-
 .loginPage {
   padding-top: 0px;
   position: relative;

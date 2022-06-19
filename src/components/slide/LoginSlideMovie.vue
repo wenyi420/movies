@@ -1,18 +1,11 @@
 <script setup>
-import {
-  ref,
-  nextTick,
-  onUpdated,
-  onUnmounted,
-  getCurrentInstance,
-  inject,
-} from "vue";
+import { ref, nextTick, onUpdated, onUnmounted, getCurrentInstance } from "vue";
 import Swiper from "swiper/bundle";
 import "swiper/css/bundle";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons-vue";
 import { apiGetPopularMovie, apiGetNexflix } from "@/apis/movie.js";
 import { useRouter } from "vue-router";
-import noImg from "@/assets/image/noImg.svg";
+import noImg from "@/assets/image/noImg.jpg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
 import renderComponent from "@/renderComponent";
 
@@ -41,18 +34,23 @@ function INITswiper() {
     breakpoints: {
       // when window width is >= 320px
       320: {
-        slidesPerGroup: 4,
-        slidesPerView: 4,
+        slidesPerGroup: 3,
+        slidesPerView: 3,
         spaceBetween: 7,
       },
 
       // when window width is >= 640px
       768: {
-        slidesPerGroup: 5,
-        slidesPerView: 5,
+        slidesPerGroup: 3,
+        slidesPerView: 3,
         spaceBetween: 14,
       },
       1024: {
+        slidesPerGroup: 4,
+        slidesPerView: 4,
+        spaceBetween: 14,
+      },
+      1440: {
         slidesPerGroup: 6,
         slidesPerView: 6,
         spaceBetween: 14,
@@ -87,17 +85,13 @@ function movieSlidesBindHoverEvent() {
 }
 
 function mouseoverHandler(e) {
-  console.log("e", e);
   hoverTimer = setTimeout(() => {
     const parent = e.target.parentElement;
     if (parent?.dataset?.swiperSlideIndex) {
       let index = parent.dataset.swiperSlideIndex;
       let movie = movies.value[index];
       const { x, y, width, height } = getCoords(e.target, "center");
-      console.log(
-        "slidePrev.value.getBoundingClientRect()?.width",
-        slidePrev.value.getBoundingClientRect()?.width
-      );
+
       const bodyWidth = document.body.getBoundingClientRect()?.width;
       createPreviewMovieModal({
         x,
@@ -129,14 +123,9 @@ function checkIsHovered(e) {
     }
   }
 }
-
-// const injectMovieData = inject("movieModal");
-//     console.log("movieModalData", injectMovieData);
-
 const { appContext } = getCurrentInstance();
 const createPreviewMovieModal = async (data) => {
   destroyComp?.();
-  console.log("createMovieModal data", data);
   destroyComp = renderComponent({
     el: "#triggerModal",
     component: (await import("@/components/previewSlideMovie.vue")).default,
@@ -151,7 +140,6 @@ const createPreviewMovieModal = async (data) => {
       imgbox: movieImg,
       isFirstItem: data.isFirstItem,
       isLastItem: data.isLastItem,
-      //   injectMovieData: injectMovieData,
     },
     appContext,
   });
@@ -197,7 +185,6 @@ function getMovies() {
      */
 
     movies.value = result.map((d) => {
-      console.log("d", d);
       return {
         id: d.id,
         //   url: d.poster_path,
@@ -216,13 +203,22 @@ function getMovies() {
 }
 
 function setLazyLoad() {
-  const imgs = document.querySelectorAll("a.movie-item");
+  const imgs = swiperEl.value.querySelectorAll("a.movie-item");
+  const option = {
+    root: document.querySelector(".main-swiper-wrapper"),
+    rootMargin: "100px",
+  };
   const observer = new IntersectionObserver((nodes) => {
     nodes.forEach((v) => {
       // 進入可視區域才加載
       if (v.isIntersecting) {
-        v.target.style.backgroundImage =
-          "url(https://image.tmdb.org/t/p/w300" + v.target.dataset.src + ")";
+        let bgImg;
+        if (v.target.dataset.src) {
+          bgImg = `url(https://image.tmdb.org/t/p/w300${v.target.dataset.src})`;
+        } else {
+          bgImg = `url(${noImg})`;
+        }
+        v.target.style.backgroundImage = bgImg;
 
         // 避免 skeleton 動畫還沒運作而直接關閉，導致畫面閃爍
         setTimeout(() => {
@@ -231,7 +227,7 @@ function setLazyLoad() {
         observer.unobserve(v.target); // 停止監聽已加載圖片
       }
     });
-  });
+  }, option);
   imgs.forEach((v) => observer.observe(v));
 }
 
@@ -297,16 +293,7 @@ function getCoords(element, position) {
 
   point.width = width;
   point.height = height;
-  console.log("point", point);
   return point;
-}
-
-function goToMovie(id) {
-  if (isNetflix) {
-    // sessionStorage.setItem("isNetflix", true);
-    return router.push({ path: `/movie/netflix/${id}` });
-  }
-  return router.push({ path: `/movie/${id}` });
 }
 </script>
 
@@ -316,26 +303,15 @@ function goToMovie(id) {
       <div class="swiper-wrapper" ref="swiperWrapper">
         <!-- Slides -->
         <div class="swiper-slide" :key="index" v-for="(movie, index) in movies">
-          <a
-            class="movie-item"
-            :data-src="movie.url"
-            @click="goToMovie(movie.id)"
-          >
+          <a class="movie-item" :data-src="movie.url">
             <!-- 當進入  Intersection Observer API 後，透過 js 添加此 style 
               :style="{
               'background-image':
                 'url(https://image.tmdb.org/t/p/w300' + movie.url + ')',
               }" 
             -->
-            <img v-if="movie.url" :src="movieImg" alt="" />
-            <img :src="noImg" v-else />
-            <!-- <span class="title">{{ movie.title }}</span> -->
+            <img :src="movieImg" alt="" />
           </a>
-          <!-- <div class="info">
-            <h3>電影資訊</h3>
-            <p>93% 適合你</p>
-            <p>黑暗 獵奇</p>
-          </div> -->
         </div>
       </div>
     </div>
@@ -357,7 +333,6 @@ function goToMovie(id) {
   margin: 16px 0%;
 
   @media screen and (max-width: 480px) {
-    margin-right: -15%;
     margin-top: 0px;
   }
 }
@@ -366,21 +341,16 @@ function goToMovie(id) {
   padding: 0 60px;
   overflow: unset;
 
+  @media screen and (max-width: 768px) {
+    padding: 0 4%;
+  }
+
   .swiper-wrapper {
     .swiper-slide {
       position: relative;
       border-radius: 5px;
       overflow: hidden;
       transition: ease 0.3s;
-      &:hover {
-        // transform: scale(1.3);
-        // z-index: 10;
-        // transform-origin: left;
-
-        // .info {
-        //   display: block;
-        // }
-      }
 
       .movie-item {
         display: block;
@@ -467,7 +437,6 @@ function goToMovie(id) {
 
   @media screen and (max-width: 480px) {
     .swiper-wrapper {
-      padding-bottom: 48px;
       .swiper-slide {
         border-radius: 5px;
       }
@@ -499,6 +468,9 @@ function goToMovie(id) {
   cursor: pointer;
   width: 60px;
   background: rgb(0 0 0 / 60%);
+  @media screen and (max-width: 768px) {
+    width: 4%;
+  }
 }
 .slide-button-prev {
   left: 0;
@@ -514,6 +486,9 @@ function goToMovie(id) {
   transform: translate(-50%, -50%);
   color: #fff;
   font-size: 40px;
+  @media screen and (max-width: 768px) {
+    font-size: 4vw;
+  }
 }
 
 .slide-content:hover {

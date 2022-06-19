@@ -70,13 +70,21 @@ const target = movieTypeList.find((item) => item.type === props.type);
   max-width: 100%;
   overflow-x: hidden;
   padding: 0 3%;
-  margin-top: 40px;
+  margin: 3vw 0;
+  @media screen and (max-width: 768px) {
+    margin: 1vw 0;
+  }
   &.isLogined {
     padding: 0;
     .cate {
       padding-left: 60px;
       font-size: 1.4vw;
       font-weight: bold;
+    }
+    @media screen and (max-width: 768px) {
+      .cate {
+        padding-left: 4%;
+      }
     }
   }
   .cate {
@@ -91,5 +99,9 @@ const target = movieTypeList.find((item) => item.type === props.type);
       font-size: 16px;
     }
   }
+}
+
+.light .netflix .cate {
+  color: var(--v-white) !important;
 }
 </style>

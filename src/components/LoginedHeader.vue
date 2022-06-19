@@ -1,8 +1,9 @@
 <script setup>
 import { useRouter } from "vue-router";
-import switchAppearance from "@/components/switch-appearance.vue";
 import { onMounted, ref } from "@vue/runtime-core";
-import profilePic from "@/assets/image/profilePic.png";
+import SwitchAppearance from "@/components/switch-appearance.vue";
+import SearchMovie from "@/components/searchMovie.vue";
+import AccountButton from "@/components/accountButton.vue";
 
 const router = useRouter();
 
@@ -48,7 +49,7 @@ onMounted(() => {
             ></path>
           </g></svg
       ></span>
-      <span class="mb-logo" @click="toHomePage">
+      <!-- <span class="mb-logo" @click="toHomePage">
         <svg
           class="svg-icon svg-icon-n-logo"
           focusable="false"
@@ -77,46 +78,32 @@ onMounted(() => {
             fill="#e50914"
           ></path>
         </svg>
-      </span>
+      </span> -->
       <a-space :size="25">
-        <a>首頁</a>
-        <a>我的片單</a>
+        <a class="homeLink" @click="toHomePage">首頁</a>
+        <a class="myMovies">我的片單</a>
       </a-space>
     </div>
     <div class="right">
       <a-space :size="15">
-        <div class="searchBox">
-          <div class="searchBox-icon">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              class="search-icon"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M13 11C13 13.7614 10.7614 16 8 16C5.23858 16 3 13.7614 3 11C3 8.23858 5.23858 6 8 6C10.7614 6 13 8.23858 13 11ZM14.0425 16.2431C12.5758 17.932 10.4126 19 8 19C3.58172 19 0 15.4183 0 11C0 6.58172 3.58172 3 8 3C12.4183 3 16 6.58172 16 11C16 11.9287 15.8417 12.8205 15.5507 13.6497L24.2533 18.7028L22.7468 21.2972L14.0425 16.2431Z"
-                fill="currentColor"
-              ></path>
-            </svg>
-          </div>
-        </div>
-        <div class="switch-styleMode">
-          <switchAppearance />
-        </div>
-        <div class="account-dropdown-button">
-          <div class="account-img">
-            <img :src="profilePic" alt="" />
-          </div>
-          <span class="arrow-icon"></span>
-        </div>
+        <SearchMovie />
+        <SwitchAppearance />
+        <AccountButton />
       </a-space>
     </div>
   </header>
 </template>
+<style lang="scss">
+@media screen and (max-width: 480px) {
+  header.isLogined {
+    .left {
+      .ant-space {
+        gap: 0 !important;
+      }
+    }
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Akshar&display=swap");
@@ -130,54 +117,28 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 21px 3%;
+  padding: 18px 3%;
   background-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.7) 10%,
     rgba(0, 0, 0, 0)
   );
-  color: var(--color-text);
+  color: var(--v-white);
   .right {
     font-size: 13px;
-
-    .account-dropdown-button {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      align-items: center;
-
-      .account-img {
-        width: 100%;
-        height: 100%;
-        border-radius: 5px;
-        overflow: hidden;
-      }
-      .arrow-icon {
-        margin-left: 10px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 5px 5px 0 5px;
-        border-color: #fff transparent transparent transparent;
-        transition: transform 367ms cubic-bezier(0.21, 0, 0.07, 1);
-      }
-    }
   }
   .left {
     display: flex;
     align-items: center;
     a {
-      color: #fff;
+      color: var(--v-white);
     }
-    .logo,
-    .mb-logo {
+    .logo {
       fill: var(--color-main);
       cursor: pointer;
       margin-right: 50px;
     }
-    .mb-logo {
-      display: none;
-    }
+
     .svg-icon-netflix-logo {
       display: block;
       width: 93px;
@@ -191,8 +152,14 @@ header {
 
 header.active {
   top: 0px;
-  background: rgb(20, 20, 20);
+  background: var(--header-logined-bg);
   position: fixed;
+  color: var(--color-text);
+  .left {
+    a {
+      color: var(--color-text);
+    }
+  }
 }
 
 body.b-transition header {
@@ -203,30 +170,38 @@ body.b-transition header {
   header {
     background-color: rgba(0, 0, 0, 0.75);
   }
+  .header-text {
+    display: none;
+  }
   .light header {
     background-color: rgba(255, 255, 255, 0.8);
   }
 }
-
-@media screen and (max-width: 580px) {
+@media screen and (max-width: 768px) {
   header {
-    justify-content: flex-end;
-
+    padding: 8px 3%;
     .left {
-      position: absolute;
-      left: 3%;
       .logo {
-        display: none;
+        margin-right: 15px;
       }
-      .mb-logo {
-        display: block;
+      .svg-icon-netflix-logo {
+        width: 60px;
       }
     }
   }
 }
-@media screen and (max-width: 1024px) {
-  .header-text {
-    display: none;
+@media screen and (max-width: 580px) {
+  header {
+    justify-content: flex-end;
+    padding: 4px 3%;
+    .left {
+      position: absolute;
+      left: 3%;
+
+      .homeLink {
+        display: none;
+      }
+    }
   }
 }
 </style>

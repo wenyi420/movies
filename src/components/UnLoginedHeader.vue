@@ -12,8 +12,8 @@ function goToLogin() {
   router.push("/login");
 }
 
-function goToRegister() {
-  router.push("/register");
+function toSignupPage() {
+  router.push("/signup");
 }
 </script>
 
@@ -73,7 +73,7 @@ function goToRegister() {
         <span class="header-text">
           {{ $t("str_header_component_unlimitedHours") }}
         </span>
-        <a-button type="primary" @click="goToRegister">{{
+        <a-button type="primary" @click="toSignupPage">{{
           $t("str_common_join")
         }}</a-button>
         <a-button class="transparent" @click="goToLogin">{{

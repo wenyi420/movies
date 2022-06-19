@@ -63,7 +63,7 @@ function INITModalscrollToTop() {
     :class="{ show: isShowModal }"
   >
     <div class="modal" ref="modal">
-      <div class="close" @click="isShowModal = false">
+      <div class="close" @click="closeModalHandler">
         <svg
           width="24"
           height="24"
@@ -151,5 +151,9 @@ function INITModalscrollToTop() {
 
   /* 底部留一點間距, 由於 top 為 30 需要多一些 */
   margin-bottom: 60px;
+}
+
+.light .modal .close {
+  background: #fff !important;
 }
 </style>

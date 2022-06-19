@@ -2,9 +2,9 @@ import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 
 export const useUserStore = defineStore("user", () => {
-  const userData = reactive({});
+  const userData = ref({});
 
-  const isLogined = ref(true);
+  const isLogined = ref(false);
   /**
    * @param data
    * {
@@ -19,15 +19,22 @@ export const useUserStore = defineStore("user", () => {
   // 將登入後的資料存入
   let setUserData = (data) => {
     console.log("使用 pinia set usr data", data);
-    Object.assign(userData, data);
+    userData.value = data;
+    // Object.assign(userData, data);
     isLogined.value = true;
   };
 
   // 登出
-  let clearUserData = () => {
-    Object.assign(userData, {});
+  let logOutHanlder = () => {
+    // Object.assign(userData, {});
+    userData.value = {};
     isLogined.value = false;
   };
 
-  return { userData, isLogined, setUserData, clearUserData };
+  // 進入網頁時檢查是否以登入
+  // checkLoginState() {
+
+  // }
+
+  return { userData, isLogined, setUserData, logOutHanlder };
 });

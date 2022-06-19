@@ -1,10 +1,10 @@
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, toRef } from "vue";
 import LoginedHeader from "@/components/LoginedHeader.vue";
 import UnLoginedHeader from "@/components/UnLoginedHeader.vue";
 
 const props = defineProps(["isLogined"]);
-const isLogined = props.isLogined;
+const isLogined = toRef(props, "isLogined");
 </script>
 
 <template>

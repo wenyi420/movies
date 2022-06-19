@@ -50,7 +50,7 @@ function setModeClassToBody() {
 
 <style lang="scss" scoped>
 .ant-switch {
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--border-color) !important;
 }
 .light .ant-switch {
   background-color: #eee;

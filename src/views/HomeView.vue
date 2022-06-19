@@ -11,7 +11,6 @@ import { i18n } from "@/i18n/config.js";
 import { apiGetNexflix, apiGetPopularMovie } from "@/apis/movie.js";
 import { reactive } from "@vue/reactivity";
 
-// import popupModal from "@/components/popupModal.vue";
 import MovieModal from "@/components/movieModal.vue";
 
 const store = useUserStore();
@@ -28,23 +27,7 @@ function goToLogin() {
 
 const movieData = reactive({});
 
-/**
- * backdrop_path: "/hJgjxqGBvLAQOpsGJFpPVS7YyUn.jpg"
-first_air_date: "2022-03-02"
-genre_ids: [18]
-id: 156135
-name: "Ritmo salvaje"
-origin_country: ['CO']
-original_language: "es"
-original_name: "Ritmo salvaje"
-overview: ""
-popularity: 113.342
-poster_path: "/fNgjy8rDEprVWqeGfzgQ5E0yyIv.jpg"
-vote_average: 7.7
-vote_count: 16
- */
 apiGetNexflix(3).then((res) => {
-  console.log("netflix data: ,", res);
   let data = res.data.results;
   if (data && data.length) {
     let index = getRandom(15);
@@ -83,15 +66,10 @@ const getSimilarMovies = (genres) => {
 
     apiGetPopularMovie(1, tag).then((values) => {
       let data = values.data.results;
-
       similarMovies.value = data.filter((m) => m.id !== movieData.id);
-      // modal.value?.showModalHandler();
-
       movieData.similarMovies = similarMovies.value;
-
       movieModalStore.resetMovieData(movieData);
       isShow.value = true;
-      // modal.value?.setMovieData(movieData);
     });
   }
 };
@@ -100,6 +78,7 @@ const getSimilarMovies = (genres) => {
 <template>
   <main :class="{ isLogined: isLogined, unLogined: !isLogined }">
     <section v-if="isLogined" class="banner-movie-wrapper">
+      <div class="billboard-row"></div>
       <div class="img-wrapper">
         <div
           class="img-bg"
@@ -111,6 +90,7 @@ const getSimilarMovies = (genres) => {
               ')',
           }"
         ></div>
+        <div class="banner-footer-mask"></div>
       </div>
       <div class="banner-info-wrapper">
         <div class="movie-title">
@@ -172,17 +152,16 @@ const getSimilarMovies = (genres) => {
     </section>
 
     <!-- 待做成一個 section 組件 包裝 slide -->
-    <movieCategory
-      type="Netflix"
-      :style="{ marginTop: isLogined ? '-150px' : '' }"
-    ></movieCategory>
-    <movieCategory type="popular"></movieCategory>
-    <movieCategory type="plot"></movieCategory>
-    <!-- <movieCategory type="romantic"></movieCategory>
-    <movieCategory type="violence"></movieCategory>
-    <movieCategory type="fear"></movieCategory>
-    <movieCategory type="animation"></movieCategory>
-    <div class="introl with-gradient-blur">
+    <div class="main-swiper-wrapper">
+      <movieCategory class="netflix" type="Netflix"></movieCategory>
+      <movieCategory type="popular"></movieCategory>
+      <movieCategory type="plot"></movieCategory>
+      <movieCategory type="romantic"></movieCategory>
+      <movieCategory type="violence"></movieCategory>
+      <movieCategory type="fear"></movieCategory>
+      <movieCategory type="animation"></movieCategory>
+    </div>
+    <div class="introl with-gradient-blur" v-if="!isLogined">
       <div class="introl-content">
         <h2>{{ $t("str_home_introl_content") }}</h2>
         <p>
@@ -193,16 +172,12 @@ const getSimilarMovies = (genres) => {
           $t("str_common_join")
         }}</a-button>
       </div>
-    </div> -->
+    </div>
   </main>
 
-  <div id="triggerModal" ref="triggerModal">
-    <h3>這是 hover 後出現</h3>
-  </div>
+  <!-- 負責呈現 hover 的 slideMovie -->
+  <div id="triggerModal" ref="triggerModal"></div>
 
-  <!-- <popupModal ref="modal">
-
-  </popupModal> -->
   <MovieModal ref="modal" />
 </template>
 
@@ -222,9 +197,22 @@ main {
 
 .isLogined {
   .banner-movie-wrapper {
+    position: relative;
+    .billboard-row {
+      position: relative;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding-bottom: 40%;
+      margin-bottom: 20px;
+    }
     .img-wrapper {
+      position: absolute;
+      left: 0;
+      top: 0;
       width: 100%;
-      height: 100vh;
+      height: 56.25vw;
+
       .img-bg {
         width: 100%;
         height: 100%;
@@ -236,7 +224,7 @@ main {
     .banner-info-wrapper {
       position: absolute;
       left: 3%;
-      bottom: 25%;
+      bottom: 0%;
       width: 40%;
       .movie-title {
         font-size: 3vw;
@@ -291,9 +279,68 @@ main {
             font-size: 23px;
             font-weight: bold;
           }
+
+          @media screen and (max-width: 1280px) {
+            padding: 6px 25px;
+
+            .movie-btn-icon {
+              svg {
+                width: 22px;
+                height: 22px;
+              }
+            }
+
+            .movie-btn-text {
+              font-size: 18px;
+            }
+          }
+          @media screen and (max-width: 1280px) {
+            padding: 4px 14px;
+
+            .movie-btn-icon {
+              margin-right: 8px;
+              svg {
+                width: 14px;
+                height: 14px;
+              }
+            }
+
+            .movie-btn-text {
+              font-size: 16px;
+            }
+          }
+        }
+      }
+
+      @media screen and (max-width: 1280px) {
+        width: 60%;
+      }
+      @media screen and (max-width: 480px) {
+        width: 75%;
+        .movie-title {
+          font-size: 20px;
+          letter-spacing: 2px;
+        }
+        .movie-desc {
+          display: none;
         }
       }
     }
+    .banner-footer-mask {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 15vw;
+      background: var(--login-banner-footer-mask);
+    }
+  }
+}
+
+.light .isLogined {
+  .movie-title,
+  .movie-desc {
+    color: var(--v-white) !important;
   }
 }
 
@@ -302,7 +349,7 @@ main {
   margin-bottom: 20px;
 }
 
-.movie-slide-list:nth-child(6) {
+.movie-slide-list:not(.isLogined):nth-child(6) {
   filter: blur(5px);
   position: relative;
 
@@ -316,7 +363,7 @@ main {
     z-index: 100;
   }
 }
-.movie-slide-list:nth-child(7) {
+.movie-slide-list:not(.isLogined):nth-child(7) {
   filter: blur(10px);
   position: relative;
 
