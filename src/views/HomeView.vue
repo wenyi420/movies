@@ -183,11 +183,7 @@ const getSimilarMovies = (genres) => {
 </template>
 
 <style lang="scss" scoped>
-#triggerModal {
-  position: absolute;
-  z-index: 10;
-  transform: translate(-50%, -50%);
-}
+
 
 main {
   height: 100%;

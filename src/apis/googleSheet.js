@@ -3,7 +3,10 @@ import { useUserStore } from "@/stores/user.js";
 import { showLoadingAlert, showErrorAlert } from "@/utils.js";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycbzr3NfL80QHXZdAeIXYYlRFAHOLq91wHhscXKAy0O3qcQ7njUi2oaiIqoX4gsorgAFQ/exec";
+  "https://script.google.com/macros/s/AKfycbxKhTzd-RjWkq2rQXDmLp0GHJhGpLUL58XrVrWUgVuZZOuH1Ot1vHQrJ6lkoGCBo7wp/exec";
+
+const token = localStorage.getItem("token");
+const _id = localStorage.getItem("_id");
 
 export const apiCreateAccont = async (data) => {
   try {
@@ -146,6 +149,52 @@ export const apiUpdateAccount = (data) => {
     });
 };
 
+export const apiUpdateMovies = async (movies) => {
+  try {
+    const resp = await updateMovies(movies);
+    await updateMyMoviesToStores(resp);
+    return resp;
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
+};
+
+function updateMovies(movies = []) {
+  console.log("update movies", movies);
+  return new Promise((resolve, reject) => {
+    const data = {
+      token,
+      _id,
+      postType: "movies",
+      movies: JSON.stringify(movies),
+    };
+
+    fetch(baseURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+    })
+      .then((response) => {
+        return response.text().then(function (text) {
+          console.log("resp text", text);
+          let resp = JSON.parse(text);
+
+          let isSuccess = resp.state.includes("success");
+          if (isSuccess) {
+            resolve(resp);
+          } else {
+            reject(resp);
+          }
+        });
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+}
+
 /**
  *  data:
         account: "test@gmail.com"
@@ -163,6 +212,14 @@ const setUserDataToStores = (resp) => {
   return new Promise((resolve, reject) => {
     const store = useUserStore();
     store.setUserData(resp.data, resp.token);
+    resolve();
+  });
+};
+
+const updateMyMoviesToStores = (resp) => {
+  return new Promise((resolve, reject) => {
+    const store = useUserStore();
+    store.updateMyMovies(resp.data);
     resolve();
   });
 };

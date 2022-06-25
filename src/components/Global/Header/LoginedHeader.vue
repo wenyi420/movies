@@ -11,6 +11,10 @@ function toHomePage() {
   router.push("/");
 }
 
+function toMyMovies() {
+  router.push("/myMovies");
+}
+
 function goToLogin() {
   router.push("/login");
 }
@@ -81,7 +85,7 @@ onMounted(() => {
       </span> -->
       <a-space :size="25">
         <a class="homeLink" @click="toHomePage">首頁</a>
-        <a class="myMovies">我的片單</a>
+        <a class="myMovies" @click="toMyMovies">我的片單</a>
       </a-space>
     </div>
     <div class="right">

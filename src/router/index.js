@@ -29,6 +29,11 @@ const router = createRouter({
       name: "signup",
       component: () => import("@/views/Signup.vue"),
     },
+    {
+      path: "/myMovies",
+      name: "myMovies",
+      component: () => import("@/views/MyMovies.vue"),
+    },
   ],
   scrollBehavior() {
     // always scroll to top

@@ -22,6 +22,14 @@ export const useUserStore = defineStore("user", () => {
     }
    */
 
+  let getUserMovies = () => {
+    let movies = userData.value.movies;
+    if (movies) {
+      return JSON.parse(movies);
+    }
+    return [];
+  };
+
   // 將登入後的資料存入
   let setUserData = (data, token) => {
     userData.value = data;
@@ -30,6 +38,10 @@ export const useUserStore = defineStore("user", () => {
 
     localStorage.setItem("_id", data._id);
     localStorage.setItem("token", token);
+  };
+
+  let updateMyMovies = (data) => {
+    userData.value.movies = data.movies;
   };
 
   // 登出
@@ -41,5 +53,12 @@ export const useUserStore = defineStore("user", () => {
     isLogined.value = false;
   };
 
-  return { userData, isLogined, setUserData, logOutHanlder };
+  return {
+    userData,
+    isLogined,
+    setUserData,
+    logOutHanlder,
+    getUserMovies,
+    updateMyMovies,
+  };
 });

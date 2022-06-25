@@ -5,10 +5,13 @@ import {
   onUnmounted,
   onMounted,
   onBeforeUnmount,
+  computed,
 } from "vue";
 import { apiGetPopularMovie } from "@/apis/movie.js";
 import { storeToRefs } from "pinia";
 import { useMovieModalStore } from "@/stores/movieModal.js";
+import { useUserStore } from "@/stores/user.js";
+import { apiUpdateMovies } from "@/apis/googleSheet.js";
 
 const movieModalStore = useMovieModalStore();
 const { isShow } = storeToRefs(movieModalStore);
@@ -58,10 +61,11 @@ export default defineComponent({
     // },
   },
   setup(props) {
-    // const injectMovieData = inject("movieModal");
-    // console.log("movieModalData", movieModalData);
-    // const isShow = injectMovieData.isShow;
-    // let movieModalData = injectMovieData.data;
+    const movieID = props.movie.movie.id;
+    const store = useUserStore();
+    let userMovies = store.getUserMovies();
+    const isAddedMovie = ref(false);
+    isAddedMovie.value = userMovies.find((id) => id === movieID) ? true : false;
 
     const count = ref(0);
     const isActive = ref(false);
@@ -84,7 +88,9 @@ export default defineComponent({
 
     const similarMovies = ref([]);
     function showMovieModal() {
-      getSimilarMovies(props.movie.movie.genre_ids);
+      let movieData = props.movie.movie;
+      let genres = movieData.genre_ids ? movieData.genre_ids : movieData.genres;
+      getSimilarMovies(genres);
     }
 
     const getSimilarMovies = (genres) => {
@@ -109,7 +115,32 @@ export default defineComponent({
         });
       }
     };
-    return { count, isActive, getMovieScore, showMovieModal };
+
+    const addToMyMovies = async () => {
+      userMovies.push(movieID);
+      let resp = await apiUpdateMovies(userMovies);
+      if (resp) {
+        isAddedMovie.value = true;
+      }
+    };
+
+    const removeToMyMovies = async () => {
+      userMovies = userMovies.filter((id) => id !== movieID);
+      let resp = await apiUpdateMovies(userMovies);
+      if (resp) {
+        isAddedMovie.value = false;
+      }
+    };
+
+    return {
+      count,
+      isActive,
+      getMovieScore,
+      showMovieModal,
+      isAddedMovie,
+      addToMyMovies,
+      removeToMyMovies,
+    };
   },
 });
 </script>
@@ -150,7 +181,34 @@ export default defineComponent({
             </svg>
           </div>
 
-          <div class="infoIcon-btn">
+          <!-- 從我的片單移除 -->
+          <div
+            v-show="isAddedMovie"
+            @click="removeToMyMovies"
+            class="infoIcon-btn"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="Hawkins-Icon Hawkins-Icon-Standard"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M8.68239 19.7312L23.6824 5.73115L22.3178 4.26904L8.02404 17.6098L2.70718 12.293L1.29297 13.7072L7.29297 19.7072C7.67401 20.0882 8.28845 20.0988 8.68239 19.7312Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </div>
+          <!-- 新增至我的片單 -->
+          <div
+            class="infoIcon-btn"
+            @click="addToMyMovies"
+            v-show="!isAddedMovie"
+          >
             <svg
               width="24"
               height="24"
