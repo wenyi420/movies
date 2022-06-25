@@ -1,8 +1,8 @@
 <script setup>
 import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/form/v-input.vue";
-import Swal from "sweetalert2";
-import "sweetalert2/src/sweetalert2.scss";
+import { showSuccessAlert } from "@/utils.js";
+
 import { reactive, ref, watch, onBeforeMount, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
@@ -29,13 +29,14 @@ const { users, count } = storeToRefs(store);
 // });
 
 const account = ref(null);
-const password = ref();
+const password = ref(null);
 
-function connectFB() {
-  apiCreateAccountByFB(successConnetHandler);
-}
-function successConnetHandler() {
-  toHomePage();
+async function connectFB() {
+  let resp = await apiCreateAccountByFB();
+  if (resp) {
+    await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
+    toHomePage();
+  }
 }
 
 const rememberMe = ref(false);
@@ -75,22 +76,17 @@ function checkValue() {
     });
 }
 
-function singup() {
-  //   let _account = encodeURI(account.value?.innerModel);
-  //   let _password = encodeURI(password.value?.innerModel);
-
-  //   let params = `account=${_account}&password=${_password}&role=member`;
-
+async function singup() {
   let data = {
     account: account.value?.innerModel,
     password: password.value?.innerModel,
     role: "member",
-    state: "signup",
+    postType: "signup",
   };
-  apiCreateAccont(data, successCreateHandler);
 
-  function successCreateHandler(res) {
-    console.log("res", res);
+  let resp = await apiCreateAccont(data);
+  if (resp) {
+    await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
     toLoginPage();
   }
 }

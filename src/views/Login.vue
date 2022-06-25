@@ -1,8 +1,8 @@
 <script setup>
 import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/form/v-input.vue";
-import Swal from "sweetalert2";
-import "sweetalert2/src/sweetalert2.scss";
+import { showSuccessAlert } from "@/utils.js";
+
 import { reactive, ref, watch, onBeforeMount, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
@@ -23,30 +23,19 @@ function toHomePage() {
 }
 
 const store = useUserStore();
-// const { users, count } = storeToRefs(store);
-// users.value.forEach((u) => {
-//   let obj = {
-//     account: u.account,
-//     pwd: u.password,
-//   };
-//   console.log("user obj ", obj);
-// });
 
 const account = ref(null);
-const password = ref();
+const password = ref(null);
 
-function connectFB() {
-  apiCreateAccountByFB(successConnetHandler);
-}
-function successConnetHandler() {
-  toHomePage();
+async function connectFB() {
+  let resp = await apiCreateAccountByFB();
+  if (resp) {
+    await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
+    toHomePage();
+  }
 }
 
 const rememberMe = ref(false);
-/**
- * rules:
- */
-
 const accountRules = reactive([
   {
     required: true,
@@ -79,27 +68,31 @@ function checkValue() {
     });
 }
 
-function testLogin() {
-  // let params = `account=test@gmail.com&password=123&role=member`;
-
+async function testLogin() {
   let data = {
     account: "test@gmail.com",
     password: "123",
     role: "member",
   };
-  apiLoginAccont(data, toHomePage);
+  let resp = await apiLoginAccont(data);
+  if (resp) {
+    await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
+    toHomePage();
+  }
 }
 
-function login() {
-  // let params = `account=${account.value?.innerModel}&password=${password.value?.innerModel}&role=member`;
-
+async function login() {
   let data = {
     account: account.value?.innerModel,
     password: password.value?.innerModel,
     role: "member",
   };
 
-  apiLoginAccont(data, toHomePage);
+  let resp = await apiLoginAccont(data);
+  if (resp) {
+    await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
+    toHomePage();
+  }
 }
 </script>
 

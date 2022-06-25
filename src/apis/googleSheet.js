@@ -1,152 +1,129 @@
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-
-function toHomePage() {
-  router.push("/");
-}
-
-import Swal from "sweetalert2";
-import "sweetalert2/src/sweetalert2.scss";
+import { showLoadingAlert, showErrorAlert } from "@/utils.js";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycbwZLI06C_ofSM6afZNtSp_meI4ZR6hYkDhH4Nu3oRfQTqkX5eufbG883GfqqvNbyOeo/exec";
+  "https://script.google.com/macros/s/AKfycbzr3NfL80QHXZdAeIXYYlRFAHOLq91wHhscXKAy0O3qcQ7njUi2oaiIqoX4gsorgAFQ/exec";
 
-export const apiCreateAccont = (data, callback) => {
-  createAccountHandler(data, callback);
-
-  Swal.fire({
-    title: "送出資料中",
-    didOpen: () => {
-      Swal.showLoading();
-    },
-  });
+export const apiCreateAccont = async (data) => {
+  try {
+    showLoadingAlert("送出資料中");
+    const resp = await createAccountHandler(data);
+    await setUserDataToStores(resp);
+    return resp;
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
 };
 
-export const apiCreateAccountByFB = (callback) => {
-  Swal.fire({
-    title: "連接 FB 中",
-    didOpen: () => {
-      Swal.showLoading();
-    },
-  });
-  FB.login(
-    function (response) {
-      if (response.status === "connected") {
-        getFBUserInfo(callback);
-      } else {
-        console.error("fb error: ", response);
-        Swal.fire({
-          icon: "error",
-          title: "FB 登入失敗",
-          showConfirmButton: false,
-          timer: 2000,
-        });
-      }
-    },
-    { scope: "public_profile,email" }
-  );
+export const apiCreateAccountByFB = async () => {
+  try {
+    showLoadingAlert("連接 FB 中");
+
+    await FBLogin();
+    const fbData = await getFBUserInfo();
+    const resp = await createAccountHandler(fbData);
+    await setUserDataToStores(resp);
+
+    return resp;
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
 };
 
+function FBLogin() {
+  return new Promise((resolve, reject) => {
+    FB.login(
+      function (response) {
+        if (response.status === "connected") {
+          resolve();
+        } else {
+          console.error("fb error: ", response);
+          reject({ msg: "FB 登入失敗" });
+        }
+      },
+      { scope: "public_profile,email" }
+    );
+  });
+}
 // 取得 FB email,name
-function getFBUserInfo(callback) {
-  FB.api("/me?fields=name,email", function (response) {
-    console.log("FB me api Successful login for: " + response);
-    console.log("FB me name: " + response.name);
-    console.log("FB me email: " + response.email);
-    let { name, email } = response;
+function getFBUserInfo() {
+  return new Promise((resolve, reject) => {
+    FB.api("/me?fields=name,email", function (response) {
+      if (!response || response.error) {
+        reject({ msg: "FB 取得資料失敗" });
+      } else {
+        let { name, email } = response;
+        let data = {
+          account: name,
+          password: email,
+          role: "fb",
+        };
 
-    let params = `account=${encodeURI(name)}&password=${email}&role=fb`;
-    createAccountHandler(params, callback);
+        resolve(data);
+      }
+    });
   });
 }
 
-// 中文字需要先 encodeURI 否則傳到 google Sheet 會不見
-function createAccountHandler(data, callback = null) {
-  //   data = {
-  //     account: "testfffffff@gmail.com",
-  //     password: "12ffffff3",
-  //     role: "member",
-  //     postType: "movies",
-  //     movies: "[829920,508943]",
-  //   };
-
-  fetch(baseURL, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8",
-    },
-  })
-    .then((response) => {
-      return response.text().then(function (text) {
-        console.log("resp text", text);
-        let resp = JSON.parse(text);
-
-        let isSuccess = resp.state.includes("success");
-        if (isSuccess) {
-          Swal.fire({
-            icon: "success",
-            title: resp.data.account + "，" + resp.msg,
-            showConfirmButton: false,
-            timer: 2000,
-          }).then(() => {
-            if (callback && typeof callback === "function") {
-              callback(resp);
-            }
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: resp.msg,
-            showConfirmButton: false,
-            timer: 2000,
-          });
-        }
-      });
+function createAccountHandler(data) {
+  return new Promise((resolve, reject) => {
+    fetch(baseURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
     })
-    .catch((err) => {
-      console.log("Error:" + err);
-    });
+      .then((response) => {
+        return response.text().then(function (text) {
+          console.log("resp text", text);
+          let resp = JSON.parse(text);
+
+          let isSuccess = resp.state.includes("success");
+          if (isSuccess) {
+            resolve(resp);
+          } else {
+            reject(resp);
+          }
+        });
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 }
 
-export const apiLoginAccont = (data, callback = null) => {
-  Swal.fire({
-    title: "登入中...",
-    didOpen: () => {
-      Swal.showLoading();
-    },
-  });
+export const apiLoginAccont = async (data) => {
+  try {
+    showLoadingAlert("登入中...");
+    let resp = await loginHandle(data);
+    await setUserDataToStores(resp);
+    return resp;
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
+};
 
-  fetch(baseURL + "?" + new URLSearchParams(data))
-    .then((response) => {
-      return response.text().then(function (text) {
-        let resp = JSON.parse(text);
-        let isSuccess = resp.state.includes("success");
-        if (isSuccess) {
-          Swal.fire({
-            icon: "success",
-            title: resp.data.account + "，" + resp.msg,
-            showConfirmButton: false,
-            timer: 2000,
-          }).then(() => {
-            setUserDataToStores(resp, callback);
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: resp.msg,
-            showConfirmButton: false,
-            timer: 2000,
-          });
-        }
+const loginHandle = (data) => {
+  return new Promise((resolve, reject) => {
+    fetch(baseURL + "?" + new URLSearchParams(data))
+      .then((response) => {
+        return response.text().then(function (text) {
+          let resp = JSON.parse(text);
+          let isSuccess = resp.state.includes("success");
+          if (isSuccess) {
+            resolve(resp);
+          } else {
+            reject(resp);
+          }
+        });
+      })
+      .catch((err) => {
+        console.log("Error:" + err);
+        reject(err);
       });
-    })
-    .catch((err) => {
-      console.log("Error:" + err);
-    });
+  });
 };
 
 export const apiUpdateAccount = (data) => {
@@ -159,11 +136,7 @@ export const apiUpdateAccount = (data) => {
           console.log("apiUpdateAccount success");
           setUserDataToStores(resp);
         } else {
-          Swal.fire({
-            icon: "error",
-            title: "token 已失效，請重新登入",
-          });
-
+          showErrorAlert("token 已失效，請重新登入");
           clearUserData();
         }
       });
@@ -186,12 +159,12 @@ export const apiUpdateAccount = (data) => {
     state: "success",
     token: token
  */
-const setUserDataToStores = (resp, callback) => {
-  const store = useUserStore();
-  store.setUserData(resp.data, resp.token);
-  if (callback && typeof callback === "function") {
-    callback();
-  }
+const setUserDataToStores = (resp) => {
+  return new Promise((resolve, reject) => {
+    const store = useUserStore();
+    store.setUserData(resp.data, resp.token);
+    resolve();
+  });
 };
 
 const clearUserData = () => {
