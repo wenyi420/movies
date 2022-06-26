@@ -3,10 +3,7 @@ import { useUserStore } from "@/stores/user.js";
 import { showLoadingAlert, showErrorAlert } from "@/utils.js";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycbxKhTzd-RjWkq2rQXDmLp0GHJhGpLUL58XrVrWUgVuZZOuH1Ot1vHQrJ6lkoGCBo7wp/exec";
-
-const token = localStorage.getItem("token");
-const _id = localStorage.getItem("_id");
+  "https://script.google.com/macros/s/AKfycbxX_phlt-Y0tcbjUKPNhKeeeNn2SG306T9i7Z8YzJrYBVR2FmXEUuP2_mZYLRN2hWPP/exec";
 
 export const apiCreateAccont = async (data) => {
   try {
@@ -161,6 +158,9 @@ export const apiUpdateMovies = async (movies) => {
 
 function updateMovies(movies = []) {
   console.log("update movies", movies);
+  const token = localStorage.getItem("token");
+  const _id = localStorage.getItem("_id");
+
   return new Promise((resolve, reject) => {
     const data = {
       token,

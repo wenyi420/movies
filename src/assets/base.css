@@ -27,6 +27,8 @@
   --header-bg: var(--v-black);
   --header-logined-bg: rgb(20, 20, 20);
 
+  --skeleton-bg: #000;
+
   --login-banner-footer-mask: linear-gradient(
     to bottom,
     rgba(20, 20, 20, 0) 0,
@@ -62,6 +64,8 @@
   --header-bg: #fff;
   --header-logined-bg: #fff;
   --footer-text-color: var(--color-text);
+
+  --skeleton-bg: #eee;
 
   --login-banner-footer-mask: linear-gradient(
     to bottom, 

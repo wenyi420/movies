@@ -195,6 +195,7 @@ function getMovies() {
         title: isNetflix ? d.name : d.title,
         score: d.vote_average,
         movie: d,
+        isNetflix
       };
     });
 

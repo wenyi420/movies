@@ -1,52 +1,101 @@
 <script setup>
-import { ref, nextTick, onUpdated, onUnmounted, getCurrentInstance } from "vue";
+import {
+  ref,
+  nextTick,
+  onUpdated,
+  onUnmounted,
+  getCurrentInstance,
+  watch,
+} from "vue";
 import { useUserStore } from "@/stores/user.js";
-import { apiGetMovieDetail } from "@/apis/movie.js";
+import { storeToRefs } from "pinia";
+import { apiGetMovieDetail, apiGetNexflixDetail } from "@/apis/movie.js";
 import noImg from "@/assets/image/noImg.jpg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
 import renderComponent from "@/renderComponent";
-import MovieModal from "@/components/Home/movieModal.vue";
+import MovieModal from "@/components/Global/Modal/movieModal.vue";
 
 const store = useUserStore();
-const movies = store.getUserMovies();
+const { userData, myMovies } = storeToRefs(store);
+
 let hoverTimer = null;
-
 const movieList = ref([]);
+const moviesEl = ref(null);
+const isINITed = ref(false);
 
-if (movies && movies.length) {
+// watch 負責處理直接在此頁 render 而非從其他頁過來時使用
+watch(userData, (v) => {
+  if (v && !isINITed.value) {
+    console.log("v", v);
+    INITMyMovies(v.movies);
+  }
+});
+
+watch(myMovies, (v) => {
+  if (v && isINITed.value) {
+    INITMyMovies(v);
+  }
+});
+
+if (userData.value.movies) {
+  INITMyMovies(userData.value.movies);
+}
+
+function INITMyMovies(movies = "") {
+  if (!movies) return (isINITed.value = true);
+
+  movies = JSON.parse(movies);
+  if (!movies.length) return (isINITed.value = true); // movies: [123456, 234576]
+
   console.log("movies", movies);
   let promiseArr = [];
-  // movies: [123456, 234576]
   movies.forEach((id) => {
-    let p = apiGetMovieDetail(id);
+    let p;
+    let isNetflix = id.toString().includes("n");
+    if (isNetflix) {
+      id = id.replace("n", "");
+      p = apiGetNexflixDetail(id);
+    } else {
+      p = apiGetMovieDetail(id);
+    }
     promiseArr.push(p);
   });
 
-  Promise.all(promiseArr).then(async (values) => {
-    let result = [];
-    values.forEach((v) => {
-      result.push(v.data);
+  Promise.all(promiseArr)
+    .then(async (values) => {
+      let result = [];
+      values.forEach((v) => {
+        result.push(v.data);
+      });
+
+      console.log("result", result);
+
+      movieList.value = result.map((d) => {
+        let id = d.id;
+        let isNetflix = movies.find((_id) => _id.toString().includes(id))
+          ? true
+          : false;
+
+        return {
+          id: d.id,
+          //   url: d.poster_path,
+          url: d.backdrop_path, // 改長寬的圖
+          title: d.title ? d.title : d.name,
+          score: d.vote_average,
+          movie: d,
+          isNetflix,
+        };
+      });
+
+      isINITed.value = true;
+      await nextTick();
+      setLazyLoad();
+    })
+    .catch(() => {
+      isINITed.value = true;
     });
-
-    console.log("result", result);
-
-    movieList.value = result.map((d) => {
-      return {
-        id: d.id,
-        //   url: d.poster_path,
-        url: d.backdrop_path, // 改長寬的圖
-        title: d.title ? d.title : d.name,
-        score: d.vote_average,
-        movie: d,
-      };
-    });
-
-    await nextTick();
-    setLazyLoad();
-  });
 }
 
-const moviesEl = ref(null);
 function setLazyLoad() {
   const imgs = moviesEl.value.querySelectorAll("a.movie-item");
   const option = {
@@ -232,17 +281,31 @@ function getCoords(element, position) {
     <div class="myMovies-wrapper-title">
       <h3>我的片單</h3>
     </div>
-    <div class="movies-content" ref="moviesEl">
-      <!-- Slides -->
-      <div
-        class="movies-list"
-        :key="index"
-        v-for="(movie, index) in movieList"
-        :data-movie-index="index"
-      >
-        <a class="movie-item" :data-src="movie.url">
-          <img :src="movieImg" alt="" />
-        </a>
+    <div v-if="isINITed">
+      <div class="movies-content" ref="moviesEl" v-if="movieList.length">
+        <!-- Slides -->
+        <div
+          class="movies-list"
+          :key="index"
+          v-for="(movie, index) in movieList"
+          :data-movie-index="index"
+        >
+          <a class="movie-item" :data-src="movie.url">
+            <img :src="movieImg" alt="" />
+          </a>
+        </div>
+      </div>
+      <div v-else style="width: 100%">
+        <h3 style="font-size: 24px">尚未添加電影到我的片單</h3>
+      </div>
+    </div>
+    <div v-else>
+      <div class="movies-content INITing">
+        <div class="movies-list">
+          <a class="movie-item">
+            <img :src="movieImg" alt="" />
+          </a>
+        </div>
       </div>
     </div>
 
@@ -257,7 +320,7 @@ function getCoords(element, position) {
 .myMovies-wrapper {
   min-height: 100vh;
   width: 100%;
-  padding: 0 60px;
+  padding: 0 3%;
   @media screen and (max-width: 768px) {
     padding: 0 4%;
   }
@@ -267,18 +330,41 @@ function getCoords(element, position) {
   padding-bottom: 70px;
   h3 {
     font-size: 2rem;
+    @media screen and (max-width: 800px) {
+      font-size: 1.8rem;
+    }
   }
 }
 .movies-content {
   display: grid;
   grid-template-columns: 16.66665% 16.66665% 16.66665% 16.66665% 16.66665% 16.66665%;
   margin: -5px;
+
+  @media screen and (max-width: 1400px) {
+    grid-template-columns: 20% 20% 20% 20% 20%;
+  }
+
+  @media screen and (max-width: 1100px) {
+    grid-template-columns: 25% 25% 25% 25%;
+  }
+  @media screen and (max-width: 800px) {
+    grid-template-columns: 33.33333% 33.33333% 33.33333%;
+  }
+  @media screen and (max-width: 500px) {
+    grid-template-columns: 50% 50%;
+  }
+
   .movies-list {
     margin: 5px;
     position: relative;
     border-radius: 5px;
     overflow: hidden;
     transition: ease 0.3s;
+    margin-bottom: 45px;
+
+    @media screen and (max-width: 500px) {
+      margin-bottom: 35px;
+    }
 
     .movie-item {
       display: block;
@@ -302,7 +388,7 @@ function getCoords(element, position) {
         width: 100%;
         height: 100%;
 
-        background: #eee;
+        background: var(--skeleton-bg);
       }
 
       // 負責呈現 skeleton

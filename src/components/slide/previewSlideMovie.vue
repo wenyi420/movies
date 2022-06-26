@@ -62,10 +62,16 @@ export default defineComponent({
   },
   setup(props) {
     const movieID = props.movie.movie.id;
+    const isNetflix = props.movie.isNetflix;
+    console.log("props.movie.movie", props.movie.movie);
     const store = useUserStore();
     let userMovies = store.getUserMovies();
     const isAddedMovie = ref(false);
-    isAddedMovie.value = userMovies.find((id) => id === movieID) ? true : false;
+    isAddedMovie.value = userMovies.find((id) =>
+      id.toString().includes(movieID)
+    )
+      ? true
+      : false;
 
     const count = ref(0);
     const isActive = ref(false);
@@ -83,7 +89,7 @@ export default defineComponent({
     });
 
     function getMovieScore(score) {
-      return score * 10;
+      return (score * 10).toFixed(0);
     }
 
     const similarMovies = ref([]);
@@ -108,6 +114,8 @@ export default defineComponent({
             vote_average: props.movie.score,
             overview: movieData.overview,
             similarMovies: similarMovies.value,
+            isNetflix,
+            id: movieID
           };
 
           movieModalStore.resetMovieData(reuslt);
@@ -117,7 +125,8 @@ export default defineComponent({
     };
 
     const addToMyMovies = async () => {
-      userMovies.push(movieID);
+      let id = isNetflix ? "n" + movieID : movieID; // 針對 neflix 需額外 api 搜索處理 避免myMovies api 查不到
+      userMovies.push(id);
       let resp = await apiUpdateMovies(userMovies);
       if (resp) {
         isAddedMovie.value = true;
@@ -125,7 +134,7 @@ export default defineComponent({
     };
 
     const removeToMyMovies = async () => {
-      userMovies = userMovies.filter((id) => id !== movieID);
+      userMovies = userMovies.filter((id) => !id.toString().includes(movieID));
       let resp = await apiUpdateMovies(userMovies);
       if (resp) {
         isAddedMovie.value = false;

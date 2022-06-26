@@ -11,7 +11,7 @@ import { i18n } from "@/i18n/config.js";
 import { apiGetNexflix, apiGetPopularMovie } from "@/apis/movie.js";
 import { reactive } from "@vue/reactivity";
 
-import MovieModal from "@/components/Home/movieModal.vue";
+import MovieModal from "@/components/Global/Modal/movieModal.vue";
 
 const store = useUserStore();
 const { isLogined } = storeToRefs(store);
@@ -68,6 +68,7 @@ const getSimilarMovies = (genres) => {
       let data = values.data.results;
       similarMovies.value = data.filter((m) => m.id !== movieData.id);
       movieData.similarMovies = similarMovies.value;
+      movieData.isNetflix = true;
       console.log("setmoviedata", movieData);
       movieModalStore.resetMovieData(movieData);
       isShow.value = true;
@@ -183,8 +184,6 @@ const getSimilarMovies = (genres) => {
 </template>
 
 <style lang="scss" scoped>
-
-
 main {
   height: 100%;
   &.unLogined {

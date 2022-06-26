@@ -7,25 +7,58 @@ import { i18n } from "@/i18n/config.js";
 
 import { storeToRefs } from "pinia";
 import { useMovieModalStore } from "@/stores/movieModal.js";
+import { useUserStore } from "@/stores/user.js";
+
+import { apiUpdateMovies } from "@/apis/googleSheet.js";
 
 const movieModalStore = useMovieModalStore();
 const { isShow, data } = storeToRefs(movieModalStore);
 
+const store = useUserStore();
+
+let userMovies;
 watch(isShow, (v) => {
   if (v) {
+    userMovies = store.getUserMovies();
     setMovieData();
+    checkIsAddedToMyMovies();
+    INITSimilarMovies();
     showModalHandler();
   }
 });
 
 const modal = ref(null);
 const movieData = ref({});
+
+console.log("movie data", data);
+
+const isAddedMovie = ref(false);
+
 function showModalHandler() {
   modal.value?.showModalHandler();
 }
 
 function setMovieData() {
   movieData.value = data.value;
+}
+
+function checkIsAddedToMyMovies() {
+  isAddedMovie.value = userMovies.find((id) =>
+    id.toString().includes(movieData.value.id)
+  )
+    ? true
+    : false;
+}
+
+function INITSimilarMovies() {
+  movieData.value.similarMovies.forEach((item) => {
+    item.isAddedMovie = isSimilarAddedMovie(item.id);
+  });
+}
+
+function isSimilarAddedMovie(similarID) {
+  let isFind = userMovies.find((id) => id.toString().includes(similarID));
+  return isFind ? true : false;
 }
 
 function getFirstSentence(info) {
@@ -50,8 +83,51 @@ function getFirstSentence(info) {
 }
 
 function getMovieScore(score) {
-  return score * 10;
+  return (score * 10).toFixed(0);
 }
+
+const addToMyMovies = async () => {
+  let id = movieData.value.isNetflix
+    ? "n" + movieData.value.id
+    : movieData.value.id; // 針對 neflix 需額外 api 搜索處理 避免myMovies api 查不到
+  userMovies.push(id);
+  let resp = await apiUpdateMovies(userMovies);
+  if (resp) {
+    isAddedMovie.value = true;
+  }
+};
+
+const removeToMyMovies = async () => {
+  userMovies = userMovies.filter(
+    (id) => !id.toString().includes(movieData.value.id)
+  );
+  let resp = await apiUpdateMovies(userMovies);
+  if (resp) {
+    isAddedMovie.value = false;
+  }
+};
+
+const addSimilarMovieToMyMovie = async (item) => {
+  console.log("similar item", item);
+  let similarMovieID = item.id;
+  userMovies.push(similarMovieID);
+  let resp = await apiUpdateMovies(userMovies);
+  if (resp) {
+    item.isAddedMovie = true;
+  }
+};
+const removeSimilarMovieToMyMovie = async (item) => {
+  console.log("similar item", item);
+  let similarMovieID = item.id;
+  userMovies = userMovies.filter(
+    (id) => !id.toString().includes(similarMovieID)
+  );
+  let resp = await apiUpdateMovies(userMovies);
+  if (resp) {
+    // todo 需要關掉 modal 並更新 myMovie list
+    item.isAddedMovie = false;
+  }
+};
 
 defineExpose({
   showModalHandler,
@@ -101,7 +177,12 @@ defineExpose({
                     <span class="movie-btn-text">播放</span>
                   </div>
                 </div>
-                <div class="infoIcon-btn">
+                <!-- 新增至我的片單 -->
+                <div
+                  class="infoIcon-btn"
+                  v-show="!isAddedMovie"
+                  @click="addToMyMovies"
+                >
                   <svg
                     width="24"
                     height="24"
@@ -114,6 +195,28 @@ defineExpose({
                       fill-rule="evenodd"
                       clip-rule="evenodd"
                       d="M11 2V11H2V13H11V22H13V13H22V11H13V2H11Z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                </div>
+                <!-- 從我的片單移除 -->
+                <div
+                  v-show="isAddedMovie"
+                  class="infoIcon-btn"
+                  @click="removeToMyMovies"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="Hawkins-Icon Hawkins-Icon-Standard"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M8.68239 19.7312L23.6824 5.73115L22.3178 4.26904L8.02404 17.6098L2.70718 12.293L1.29297 13.7072L7.29297 19.7072C7.67401 20.0882 8.28845 20.0988 8.68239 19.7312Z"
                       fill="currentColor"
                     ></path>
                   </svg>
@@ -177,7 +280,12 @@ defineExpose({
                       </div>
                     </div>
                     <div class="right">
-                      <div class="infoIcon-btn">
+                      <!-- 新增至我的片單 -->
+                      <div
+                        class="infoIcon-btn"
+                        v-show="!item.isAddedMovie"
+                        @click="addSimilarMovieToMyMovie(item)"
+                      >
                         <svg
                           width="24"
                           height="24"
@@ -190,6 +298,28 @@ defineExpose({
                             fill-rule="evenodd"
                             clip-rule="evenodd"
                             d="M11 2V11H2V13H11V22H13V13H22V11H13V2H11Z"
+                            fill="currentColor"
+                          ></path>
+                        </svg>
+                      </div>
+                      <!-- 從我的片單移除 -->
+                      <div
+                        v-show="item.isAddedMovie"
+                        class="infoIcon-btn"
+                        @click="removeSimilarMovieToMyMovie(item)"
+                      >
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="Hawkins-Icon Hawkins-Icon-Standard"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M8.68239 19.7312L23.6824 5.73115L22.3178 4.26904L8.02404 17.6098L2.70718 12.293L1.29297 13.7072L7.29297 19.7072C7.67401 20.0882 8.28845 20.0988 8.68239 19.7312Z"
                             fill="currentColor"
                           ></path>
                         </svg>

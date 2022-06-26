@@ -8,8 +8,6 @@ import router from "./router";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-
-
 window.fbAsyncInit = function () {
   FB.init({
     appId: "307282398242165",
@@ -34,8 +32,9 @@ window.fbAsyncInit = function () {
 })(document, "script", "facebook-jssdk");
 
 const app = createApp(App);
+const pinia = createPinia();
 
-app.use(createPinia());
+app.use(pinia);
 app.use(router);
 app.use(Antd);
 app.use(i18n);

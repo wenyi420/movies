@@ -1,8 +1,12 @@
 import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
+import { useRouter } from "vue-router";
 
 export const useUserStore = defineStore("user", () => {
+  const router = useRouter();
   const userData = ref({});
+
+  const myMovies = ref(""); // '[123,456]'
 
   const isLogined = ref(false);
 
@@ -11,29 +15,11 @@ export const useUserStore = defineStore("user", () => {
   if (token && _id) {
     isLogined.value = true;
   }
-  /**
-   * @param data
-   * {
-        account: "test@gmail.com"
-        params: {role: 'member', account: 'test@gmail.com', password: '123'}
-        password: 123
-        role: "member",
-        movies: [829920, 508943], // 進去我的片單則 forEach 個別抓取如 movieInfo 方式
-    }
-   */
-
-  let getUserMovies = () => {
-    let movies = userData.value.movies;
-    if (movies) {
-      return JSON.parse(movies);
-    }
-    return [];
-  };
 
   // 將登入後的資料存入
   let setUserData = (data, token) => {
     userData.value = data;
-    // Object.assign(userData, data);
+    myMovies.value = data.movies;
     isLogined.value = true;
 
     localStorage.setItem("_id", data._id);
@@ -42,6 +28,15 @@ export const useUserStore = defineStore("user", () => {
 
   let updateMyMovies = (data) => {
     userData.value.movies = data.movies;
+    myMovies.value = data.movies;
+  };
+
+  let getUserMovies = () => {
+    let movies = myMovies.value;
+    if (movies) {
+      return JSON.parse(movies);
+    }
+    return [];
   };
 
   // 登出
@@ -51,10 +46,13 @@ export const useUserStore = defineStore("user", () => {
     localStorage.removeItem("token");
     localStorage.removeItem("_id");
     isLogined.value = false;
+
+    router.push("/");
   };
 
   return {
     userData,
+    myMovies,
     isLogined,
     setUserData,
     logOutHanlder,
