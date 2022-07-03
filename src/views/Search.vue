@@ -8,8 +8,13 @@ import {
   watch,
 } from "vue";
 import { useUserStore } from "@/stores/user.js";
+import { useSearchStore } from "@/stores/search.js";
 import { storeToRefs } from "pinia";
-import { apiGetMovieDetail, apiGetNexflixDetail } from "@/apis/movie.js";
+import {
+  apiGetMovieDetail,
+  apiGetNexflixDetail,
+  apiSearchMovie,
+} from "@/apis/movie.js";
 import noImg from "@/assets/image/noImg.jpg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
 import renderComponent from "@/renderComponent";
@@ -18,82 +23,45 @@ import MovieModal from "@/components/Global/Modal/movieModal.vue";
 const store = useUserStore();
 const { userData, myMovies } = storeToRefs(store);
 
+const searchStore = useSearchStore();
+const { searchText } = storeToRefs(searchStore);
+
 let hoverTimer = null;
 const movieList = ref([]);
 const moviesEl = ref(null);
-const isINITed = ref(false);
+const notFind = ref(false);
 
-// watch 負責處理直接在此頁 render 而非從其他頁過來時使用
-watch(userData, (v) => {
-  if (v && !isINITed.value) {
-    console.log("v", v);
-    INITMyMovies(v.movies);
+watch(searchText, (v) => {
+  if (v) {
+    apiSearchMovie(v).then((res) => {
+      console.log("search res", res);
+      let movies = res.data.results;
+      INITMyMovies(movies);
+    });
   }
 });
 
-watch(myMovies, (v) => {
-  if (v && isINITed.value) {
-    INITMyMovies(v);
+async function INITMyMovies(movies = []) {
+  if (!movies.length) {
+    notFind.value = true;
+    return (movieList.value = movies);
   }
-});
 
-if (userData.value.movies) {
-  INITMyMovies(userData.value.movies);
-}
-
-function INITMyMovies(movies = "") {
-  if (!movies) return (isINITed.value = true);
-
-  movies = JSON.parse(movies);
-  if (!movies.length) return (isINITed.value = true); // movies: [123456, 234576]
-
-  console.log("movies", movies);
-  let promiseArr = [];
-  movies.forEach((id) => {
-    let p;
-    let isNetflix = id.toString().includes("n");
-    if (isNetflix) {
-      id = id.replace("n", "");
-      p = apiGetNexflixDetail(id);
-    } else {
-      p = apiGetMovieDetail(id);
-    }
-    promiseArr.push(p);
+  movieList.value = movies.map((d) => {
+    return {
+      id: d.id,
+      //   url: d.poster_path,
+      url: d.backdrop_path, // 改長寬的圖
+      title: d.title ? d.title : d.name,
+      score: d.vote_average,
+      movie: d,
+      isNetflix: false,
+    };
   });
 
-  Promise.all(promiseArr)
-    .then(async (values) => {
-      let result = [];
-      values.forEach((v) => {
-        result.push(v.data);
-      });
-
-      console.log("result", result);
-
-      movieList.value = result.map((d) => {
-        let id = d.id;
-        let isNetflix = movies.find((_id) => _id.toString().includes(id))
-          ? true
-          : false;
-
-        return {
-          id: d.id,
-          //   url: d.poster_path,
-          url: d.backdrop_path, // 改長寬的圖
-          title: d.title ? d.title : d.name,
-          score: d.vote_average,
-          movie: d,
-          isNetflix,
-        };
-      });
-
-      isINITed.value = true;
-      await nextTick();
-      setLazyLoad();
-    })
-    .catch(() => {
-      isINITed.value = true;
-    });
+  notFind.value = false;
+  await nextTick();
+  setLazyLoad();
 }
 
 function setLazyLoad() {
@@ -278,11 +246,10 @@ function getCoords(element, position) {
 
 <template>
   <div class="myMovies-wrapper">
-    <div class="myMovies-wrapper-title">
-      <h3>我的片單</h3>
-    </div>
-    <div v-if="isINITed">
-      <div class="movies-content" ref="moviesEl" v-if="movieList.length">
+    <div class="myMovies-wrapper-title"></div>
+
+    <div v-if="searchText">
+      <div class="movies-content" ref="moviesEl" v-if="!notFind">
         <!-- Slides -->
         <div
           class="movies-list"
@@ -296,16 +263,9 @@ function getCoords(element, position) {
         </div>
       </div>
       <div v-else style="width: 100%">
-        <h3 style="font-size: 24px">尚未添加電影到我的片單</h3>
-      </div>
-    </div>
-    <div v-else>
-      <div class="movies-content INITing">
-        <div class="movies-list">
-          <a class="movie-item">
-            <img :src="movieImg" alt="" />
-          </a>
-        </div>
+        <h3 style="font-size: 24px">
+          找不到符合「{{ searchText }}」的搜尋結果。
+        </h3>
       </div>
     </div>
 
@@ -330,10 +290,7 @@ function getCoords(element, position) {
   padding-bottom: 70px;
   h3 {
     font-size: 2rem;
-  }
-  @media screen and (max-width: 800px) {
-    padding-bottom: 25px;
-    h3 {
+    @media screen and (max-width: 800px) {
       font-size: 1.8rem;
     }
   }

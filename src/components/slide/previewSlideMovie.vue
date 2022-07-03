@@ -11,7 +11,11 @@ import { apiGetPopularMovie } from "@/apis/movie.js";
 import { storeToRefs } from "pinia";
 import { useMovieModalStore } from "@/stores/movieModal.js";
 import { useUserStore } from "@/stores/user.js";
-import { apiUpdateMovies } from "@/apis/googleSheet.js";
+
+import {
+  addToMyMovieHandle,
+  removeToMyMovieHandle,
+} from "@/common/movieHandle.js";
 
 const movieModalStore = useMovieModalStore();
 const { isShow } = storeToRefs(movieModalStore);
@@ -115,7 +119,7 @@ export default defineComponent({
             overview: movieData.overview,
             similarMovies: similarMovies.value,
             isNetflix,
-            id: movieID
+            id: movieID,
           };
 
           movieModalStore.resetMovieData(reuslt);
@@ -126,19 +130,13 @@ export default defineComponent({
 
     const addToMyMovies = async () => {
       let id = isNetflix ? "n" + movieID : movieID; // 針對 neflix 需額外 api 搜索處理 避免myMovies api 查不到
-      userMovies.push(id);
-      let resp = await apiUpdateMovies(userMovies);
-      if (resp) {
-        isAddedMovie.value = true;
-      }
+      let isAdded = await addToMyMovieHandle(id);
+      isAddedMovie.value = isAdded ? true : false;
     };
 
     const removeToMyMovies = async () => {
-      userMovies = userMovies.filter((id) => !id.toString().includes(movieID));
-      let resp = await apiUpdateMovies(userMovies);
-      if (resp) {
-        isAddedMovie.value = false;
-      }
+      let isRemove = await removeToMyMovieHandle(movieID);
+      isAddedMovie.value = isRemove ? false : true;
     };
 
     return {

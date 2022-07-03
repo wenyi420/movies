@@ -21,8 +21,8 @@ const { isShow } = storeToRefs(movieModalStore);
 
 const router = useRouter();
 
-function goToLogin() {
-  router.push("/login");
+function goToSignup() {
+  router.push("/signup");
 }
 
 const movieData = reactive({});
@@ -170,7 +170,7 @@ const getSimilarMovies = (genres) => {
           Movies 擁有豐富的影片內容庫，包括長片、紀錄片、節目、動畫、獲獎肯定的
           Movies 原創作品與更多內容。隨時隨地，盡情觀賞。
         </p>
-        <a-button type="primary" class="large" @click="goToLogin">{{
+        <a-button type="primary" class="large" @click="goToSignup">{{
           $t("str_common_join")
         }}</a-button>
       </div>
@@ -201,6 +201,9 @@ main {
       right: 0;
       padding-bottom: 40%;
       margin-bottom: 20px;
+      @media screen and (max-width: 580px) {
+        padding-bottom: 45%;
+      }
     }
     .img-wrapper {
       position: absolute;
@@ -208,6 +211,10 @@ main {
       top: 0;
       width: 100%;
       height: 56.25vw;
+
+      @media screen and (max-width: 580px) {
+        height: 60vw;
+      }
 
       .img-bg {
         width: 100%;
@@ -372,6 +379,10 @@ main {
     height: 100%;
     z-index: 100;
   }
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 }
 .introl {
   background: var(--color-background);
@@ -397,6 +408,9 @@ main {
 .introl.with-gradient-blur {
   margin-top: -13rem;
   padding-bottom: 50px;
+  @media screen and (max-width: 768px) {
+    margin-top: -8rem;
+  }
 }
 .with-gradient-blur::before {
   content: " ";

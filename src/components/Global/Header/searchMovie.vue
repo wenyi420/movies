@@ -1,26 +1,54 @@
 <script setup>
 import { ref, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useSearchStore } from "@/stores/search.js";
+import { storeToRefs } from "pinia";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faL, faXmark } from "@fortawesome/free-solid-svg-icons";
 library.add(faXmark);
+
+const router = useRouter();
+const route = useRoute();
 
 const searchWapprer = ref(null);
 const showSearchBox = ref(false);
 const showSearchInput = ref(false);
 const showCloseButton = ref(false);
-const searchText = ref("");
+const searchInput = ref("");
+const vInput = ref(null);
+const searchTimer = ref(null);
 
-watch(searchText, (v) => {
+const searchStore = useSearchStore();
+const { searchText } = storeToRefs(searchStore);
+
+watch(searchInput, (v) => {
   if (v) {
     showCloseButton.value = true;
-    // 搜索電影 需設置間隔
+    router.push("/search");
+    searchHandle();
+  } else {
+    showCloseButton.value = false;
+    searchText.value = v;
+    // 處理返回頁面 如無上一頁則回首頁
+    goBackHandle();
   }
 });
+
+function searchHandle() {
+  if (searchTimer.value) {
+    clearTimeout(searchTimer.value);
+  }
+  // 搜索間隔，避免頻繁輸入
+  searchTimer.value = setTimeout(() => {
+    searchText.value = searchInput.value;
+  }, 1000);
+}
 
 function showSearchInputHandle() {
   showSearchBox.value = true;
   setTimeout(() => {
     showSearchInput.value = true;
+    vInput.value.focus();
     addSearchListener();
   }, 10);
 }
@@ -35,22 +63,28 @@ function checkClickOutSide(e) {
     el !== searchWapprer.value && !searchWapprer.value.contains(el);
 
   if (isClickOutSide) {
+    console.log("route.path", route.path);
+    let isSearchPage = route.path.includes("search") ? true : false;
+    if (isSearchPage && searchInput.value) return;
+
     hideSearchInputHandle();
   }
 }
 
 function clearSearch() {
-  searchText.value = "";
-  //   todo pinia 消除以搜索的電影
+  searchInput.value = "";
+  hideSearchInputHandle();
 }
 
 function hideSearchInputHandle() {
   showSearchInput.value = false;
+  searchInput.value = "";
 
   // 等 ease .3s 效果結束執行
   setTimeout(() => {
     showSearchBox.value = false;
     removeSearchListener();
+    goBackHandle();
   }, 250);
 }
 
@@ -60,6 +94,16 @@ function addSearchListener() {
 }
 function removeSearchListener() {
   body.removeEventListener("click", checkClickOutSide);
+}
+
+function goBackHandle() {
+  if (!route.path.includes("search")) return;
+
+  if (!window.history.state.back) {
+    router.push("/");
+  } else {
+    router.go(-1);
+  }
 }
 </script>
 
@@ -110,7 +154,8 @@ function removeSearchListener() {
       </div>
       <input
         class="search-input"
-        v-model="searchText"
+        ref="vInput"
+        v-model="searchInput"
         type="text"
         placeholder="電影"
       />

@@ -28,7 +28,7 @@ onMounted(() => {
   document.body.classList.add("b-transition");
 });
 
-// 檢查登入
+// 檢查登入並更新 token 以保持登入
 function checkLoginState() {
   let token = localStorage.getItem("token");
   let _id = localStorage.getItem("_id");

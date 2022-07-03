@@ -254,7 +254,7 @@ function setLazyLoad() {
           width: 100%;
           height: 100%;
 
-          background: #eee;
+          background: var(--skeleton-bg);
         }
 
         // 負責呈現 skeleton

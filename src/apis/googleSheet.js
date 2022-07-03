@@ -1,4 +1,3 @@
-import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
 import { showLoadingAlert, showErrorAlert } from "@/utils.js";
 
@@ -136,7 +135,7 @@ export const apiUpdateAccount = (data) => {
           console.log("apiUpdateAccount success");
           setUserDataToStores(resp);
         } else {
-          showErrorAlert("token 已失效，請重新登入");
+          showErrorAlert({ title: resp?.msg });
           clearUserData();
         }
       });

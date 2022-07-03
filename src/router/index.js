@@ -34,6 +34,13 @@ const router = createRouter({
       name: "myMovies",
       component: () => import("@/views/MyMovies.vue"),
     },
+    {
+      path: "/search",
+      name: "search",
+      component: () => import("@/views/Search.vue"),
+    },
+    // 防呆處理
+    { path: "/*", redirect: "/" },
   ],
   scrollBehavior() {
     // always scroll to top

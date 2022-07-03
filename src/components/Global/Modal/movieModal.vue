@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, reactive } from "vue";
+import { ref, watch } from "vue";
 import PopupModal from "@/components/Global/Modal/popupModal.vue";
 import noImg from "@/assets/image/noImg.svg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
@@ -9,7 +9,10 @@ import { storeToRefs } from "pinia";
 import { useMovieModalStore } from "@/stores/movieModal.js";
 import { useUserStore } from "@/stores/user.js";
 
-import { apiUpdateMovies } from "@/apis/googleSheet.js";
+import {
+  addToMyMovieHandle,
+  removeToMyMovieHandle,
+} from "@/common/movieHandle.js";
 
 const movieModalStore = useMovieModalStore();
 const { isShow, data } = storeToRefs(movieModalStore);
@@ -90,43 +93,24 @@ const addToMyMovies = async () => {
   let id = movieData.value.isNetflix
     ? "n" + movieData.value.id
     : movieData.value.id; // 針對 neflix 需額外 api 搜索處理 避免myMovies api 查不到
-  userMovies.push(id);
-  let resp = await apiUpdateMovies(userMovies);
-  if (resp) {
-    isAddedMovie.value = true;
-  }
+  let isAdded = await addToMyMovieHandle(id);
+  isAddedMovie.value = isAdded ? true : false;
 };
 
 const removeToMyMovies = async () => {
-  userMovies = userMovies.filter(
-    (id) => !id.toString().includes(movieData.value.id)
-  );
-  let resp = await apiUpdateMovies(userMovies);
-  if (resp) {
-    isAddedMovie.value = false;
-  }
+  let isRemove = await removeToMyMovieHandle(movieData.value.id);
+  isAddedMovie.value = isRemove ? false : true;
 };
 
 const addSimilarMovieToMyMovie = async (item) => {
-  console.log("similar item", item);
   let similarMovieID = item.id;
-  userMovies.push(similarMovieID);
-  let resp = await apiUpdateMovies(userMovies);
-  if (resp) {
-    item.isAddedMovie = true;
-  }
+  let isAdded = await addToMyMovieHandle(similarMovieID);
+  item.isAddedMovie = isAdded ? true : false;
 };
 const removeSimilarMovieToMyMovie = async (item) => {
-  console.log("similar item", item);
   let similarMovieID = item.id;
-  userMovies = userMovies.filter(
-    (id) => !id.toString().includes(similarMovieID)
-  );
-  let resp = await apiUpdateMovies(userMovies);
-  if (resp) {
-    // todo 需要關掉 modal 並更新 myMovie list
-    item.isAddedMovie = false;
-  }
+  let isRemove = await removeToMyMovieHandle(similarMovieID);
+  item.isAddedMovie = isRemove ? false : true;
 };
 
 defineExpose({

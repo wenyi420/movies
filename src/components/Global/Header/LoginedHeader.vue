@@ -197,7 +197,7 @@ body.b-transition header {
 @media screen and (max-width: 580px) {
   header {
     justify-content: flex-end;
-    padding: 4px 3%;
+    padding: 10px 3%;
     .left {
       position: absolute;
       left: 3%;

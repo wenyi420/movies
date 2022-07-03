@@ -126,7 +126,8 @@ const lang = ref("zh-TW");
           <a class="footer-link" href="javascript:;">{{ item.text }}</a>
         </li>
       </ul>
-      <div class="lang-section-container" v-if="!isLogined">
+      <!-- 待添加 i18n 功能 -->
+      <!-- <div class="lang-section-container" v-if="!isLogined">
         <a-select
           ref="select"
           v-model:value="lang"
@@ -136,7 +137,7 @@ const lang = ref("zh-TW");
           <a-select-option value="zh-TW">中文</a-select-option>
           <a-select-option value="en">English</a-select-option>
         </a-select>
-      </div>
+      </div> -->
     </div>
   </footer>
 </template>

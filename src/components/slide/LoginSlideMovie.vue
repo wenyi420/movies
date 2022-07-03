@@ -195,7 +195,7 @@ function getMovies() {
         title: isNetflix ? d.name : d.title,
         score: d.vote_average,
         movie: d,
-        isNetflix
+        isNetflix,
       };
     });
 
@@ -378,7 +378,7 @@ function getCoords(element, position) {
           width: 100%;
           height: 100%;
 
-          background: #eee;
+          background: var(--skeleton-bg);
         }
 
         // 負責呈現 skeleton
