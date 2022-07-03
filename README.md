@@ -1,35 +1,27 @@
-# movies
+# Netflix Clone
 
-This template should help get you started developing with Vue 3 in Vite.
+[Demo](https://wenyi420.github.io/movies/)
 
-## Recommended IDE Setup
+## 使用技術
+- Vue3 + Composition API 建置 SPA 頁面
+- Vite 打包專案
+- Vue Router 控管路由頁面
+- Pinia 控管頁面資料、狀態
+- 串接 GoogleSheet API 模擬後端資料庫
+- 串接 FB 登入，搭配 GoogleSheet API  存取 FB 姓名與信箱作為帳戶資料。
+- 串接 TMDB API，模擬 Netflix 電影資料呈現
+- 使用 Ant Design Vue 作為 UI 框架
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.vscode-typescript-vue-plugin).
+## 主要功能
 
-## Customize configuration
+- Dark / Light 網頁樣式切換
+- 可註冊與登入帳戶或是用 FB 登入
+- 可加入 / 移除我的片單功能
+- 可透過搜索查找電影項目
+- 可查看電影詳細資料
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## 預計添加功能
 
-## Project Setup
+- 串接 Google 登入
+- i18n 切換
 
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
