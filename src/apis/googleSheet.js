@@ -2,7 +2,7 @@ import { useUserStore } from "@/stores/user.js";
 import { showLoadingAlert, showErrorAlert } from "@/utils.js";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycbx_BEfcq_l7mG-4ikr7knM7r2oOmzpPxuR5ZJAhfkxdT4nXTn_W7xSgNhdL_jKC-0hH/exec";
+  "https://script.google.com/macros/s/AKfycbwdfrtNQUKJ7SGNqWWut7aboQLzwwyd3WI2Kuz_7sNLLQUd5yKyCVqMaeBOvRDb5LG7/exec";
 
 export const apiCreateAccont = async (data) => {
   showLoadingAlert("送出資料中");
