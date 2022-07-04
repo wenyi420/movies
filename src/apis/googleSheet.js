@@ -5,32 +5,39 @@ const baseURL =
   "https://script.google.com/macros/s/AKfycbxX_phlt-Y0tcbjUKPNhKeeeNn2SG306T9i7Z8YzJrYBVR2FmXEUuP2_mZYLRN2hWPP/exec";
 
 export const apiCreateAccont = async (data) => {
-  try {
-    showLoadingAlert("送出資料中");
-    const resp = await createAccountHandler(data);
+  showLoadingAlert("送出資料中");
+  const resp = await createAccountHandler(data);
+  if (resp) {
     await setUserDataToStores(resp);
     return resp;
-  } catch (e) {
-    showErrorAlert({ title: e?.msg });
   }
 };
 
 export const apiCreateAccountByFB = async () => {
   try {
     showLoadingAlert("連接 FB 中");
-
     await FBLogin();
     const fbData = await getFBUserInfo();
     const resp = await createAccountHandler(fbData);
-    await setUserDataToStores(resp);
-
-    return resp;
+    if (resp) {
+      await setUserDataToStores(resp);
+      return resp;
+    }
   } catch (e) {
     showErrorAlert({ title: e?.msg });
   }
 };
 
-function FBLogin() {
+async function createAccountHandler(data) {
+  try {
+    let resp = await apiPostAccount(data);
+    return resp;
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
+}
+
+async function FBLogin() {
   return new Promise((resolve, reject) => {
     FB.login(
       function (response) {
@@ -65,102 +72,35 @@ function getFBUserInfo() {
   });
 }
 
-function createAccountHandler(data) {
-  return new Promise((resolve, reject) => {
-    fetch(baseURL, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-    })
-      .then((response) => {
-        return response.text().then(function (text) {
-          console.log("resp text", text);
-          let resp = JSON.parse(text);
-
-          let isSuccess = resp.state.includes("success");
-          if (isSuccess) {
-            resolve(resp);
-          } else {
-            reject(resp);
-          }
-        });
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-}
-
 export const apiLoginAccont = async (data) => {
   try {
     showLoadingAlert("登入中...");
-    let resp = await loginHandle(data);
-    await setUserDataToStores(resp);
-    return resp;
+    let resp = await apiGetAccount(data);
+    if (resp) {
+      await setUserDataToStores(resp);
+      return resp;
+    }
   } catch (e) {
     showErrorAlert({ title: e?.msg });
   }
 };
 
-const loginHandle = (data) => {
-  return new Promise((resolve, reject) => {
-    fetch(baseURL + "?" + new URLSearchParams(data))
-      .then((response) => {
-        return response.text().then(function (text) {
-          let resp = JSON.parse(text);
-          let isSuccess = resp.state.includes("success");
-          if (isSuccess) {
-            resolve(resp);
-          } else {
-            reject(resp);
-          }
-        });
-      })
-      .catch((err) => {
-        console.log("Error:" + err);
-        reject(err);
-      });
-  });
-};
-
-export const apiUpdateAccount = (data) => {
-  fetch(baseURL + "?" + new URLSearchParams(data))
-    .then((response) => {
-      return response.text().then(function (text) {
-        let resp = JSON.parse(text);
-        let isSuccess = resp.state.includes("success");
-        if (isSuccess) {
-          console.log("apiUpdateAccount success");
-          setUserDataToStores(resp);
-        } else {
-          showErrorAlert({ title: resp?.msg });
-          clearUserData();
-        }
-      });
-    })
-    .catch((err) => {
-      console.log("Error:" + err);
-    });
+export const apiUpdateAccount = async (data) => {
+  try {
+    let resp = await apiGetAccount(data);
+    if (resp) {
+      setUserDataToStores(resp);
+    }
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+    clearUserData();
+  }
 };
 
 export const apiUpdateMovies = async (movies) => {
   try {
-    const resp = await updateMovies(movies);
-    await updateMyMoviesToStores(resp);
-    return resp;
-  } catch (e) {
-    showErrorAlert({ title: e?.msg });
-  }
-};
-
-function updateMovies(movies = []) {
-  console.log("update movies", movies);
-  const token = localStorage.getItem("token");
-  const _id = localStorage.getItem("_id");
-
-  return new Promise((resolve, reject) => {
+    const token = localStorage.getItem("token");
+    const _id = localStorage.getItem("_id");
     const data = {
       token,
       _id,
@@ -168,31 +108,15 @@ function updateMovies(movies = []) {
       movies: JSON.stringify(movies),
     };
 
-    fetch(baseURL, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-    })
-      .then((response) => {
-        return response.text().then(function (text) {
-          console.log("resp text", text);
-          let resp = JSON.parse(text);
-
-          let isSuccess = resp.state.includes("success");
-          if (isSuccess) {
-            resolve(resp);
-          } else {
-            reject(resp);
-          }
-        });
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-}
+    let resp = await apiPostAccount(data);
+    if (resp) {
+      await updateMyMoviesToStores(resp);
+      return resp;
+    }
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
+};
 
 /**
  *  data:
@@ -207,23 +131,67 @@ function updateMovies(movies = []) {
     state: "success",
     token: token
  */
-const setUserDataToStores = (resp) => {
-  return new Promise((resolve, reject) => {
-    const store = useUserStore();
-    store.setUserData(resp.data, resp.token);
-    resolve();
-  });
+const setUserDataToStores = async (resp) => {
+  const store = useUserStore();
+  store.setUserData(resp.data, resp.token);
+  return;
 };
 
-const updateMyMoviesToStores = (resp) => {
-  return new Promise((resolve, reject) => {
-    const store = useUserStore();
-    store.updateMyMovies(resp.data);
-    resolve();
-  });
+const updateMyMoviesToStores = async (resp) => {
+  const store = useUserStore();
+  store.updateMyMovies(resp.data);
+  return;
 };
 
 const clearUserData = () => {
   const store = useUserStore();
   store.logOutHanlder();
+};
+
+const apiGetAccount = (data) => {
+  return new Promise((resolve, reject) => {
+    fetch(baseURL + "?" + new URLSearchParams(data))
+      .then((response) => {
+        return response.text().then(function (text) {
+          let resp = JSON.parse(text);
+          let isSuccess = resp.state.includes("success");
+          if (isSuccess) {
+            resolve(resp);
+          } else {
+            reject(resp);
+          }
+        });
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const apiPostAccount = (data) => {
+  return new Promise((resolve, reject) => {
+    fetch(baseURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+    })
+      .then((response) => {
+        return response.text().then((text) => {
+          console.log("resp text", text);
+          let resp = JSON.parse(text);
+
+          let isSuccess = resp.state.includes("success");
+          if (isSuccess) {
+            resolve(resp);
+          } else {
+            reject(resp);
+          }
+        });
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 };

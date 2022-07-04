@@ -68,8 +68,6 @@ function INITMyMovies(movies = "") {
         result.push(v.data);
       });
 
-      console.log("result", result);
-
       movieList.value = result.map((d) => {
         let id = d.id;
         let isNetflix = movies.find((_id) => _id.toString().includes(id))
