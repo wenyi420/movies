@@ -242,7 +242,7 @@ async function singup() {
     }
   }
 }
-.connentLogin-wrapper .btn {
+.connentLogin-wrapper .FB-btn {
   background: #4267b2;
 }
 
