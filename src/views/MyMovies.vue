@@ -45,7 +45,11 @@ function INITMyMovies(movies = "") {
   if (!movies) return (isINITed.value = true);
 
   movies = JSON.parse(movies);
-  if (!movies.length) return (isINITed.value = true); // movies: [123456, 234576]
+  if (!movies.length) {
+    movieList.value = [];
+    isINITed.value = true;
+    return;
+  }
 
   console.log("movies", movies);
   let promiseArr = [];
