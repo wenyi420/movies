@@ -2,7 +2,8 @@
 import { onMounted, onUpdated, ref } from "vue";
 
 import MovieCategory from "@/components/slide/movieCategory.vue";
-import { useRouter } from "vue-router";
+import { routerUtils } from "@/common/routerUtils.js";
+
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
 import { useMovieModalStore } from "@/stores/movieModal.js";
@@ -15,17 +16,13 @@ import MovieModal from "@/components/Global/Modal/movieModal.vue";
 
 import PlayIcon from "@/components/Icon/play.vue";
 
+const { toSignup } = routerUtils();
+
 const store = useUserStore();
 const { isLogined } = storeToRefs(store);
 
 const movieModalStore = useMovieModalStore();
 const { isShow } = storeToRefs(movieModalStore);
-
-const router = useRouter();
-
-function goToSignup() {
-  router.push("/signup");
-}
 
 const movieData = reactive({});
 
@@ -128,8 +125,9 @@ const getSimilarMovies = (genres) => {
                     clip-rule="evenodd"
                     d="M12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3ZM1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12ZM13 10V18H11V10H13ZM12 8.5C12.8284 8.5 13.5 7.82843 13.5 7C13.5 6.17157 12.8284 5.5 12 5.5C11.1716 5.5 10.5 6.17157 10.5 7C10.5 7.82843 11.1716 8.5 12 8.5Z"
                     fill="currentColor"
-                  ></path></svg
-              ></span>
+                  ></path>
+                </svg>
+              </span>
               <span class="movie-btn-text">詳細資訊</span>
             </div>
           </div>
@@ -160,7 +158,7 @@ const getSimilarMovies = (genres) => {
           Movies 擁有豐富的影片內容庫，包括長片、紀錄片、節目、動畫、獲獎肯定的
           Movies 原創作品與更多內容。隨時隨地，盡情觀賞。
         </p>
-        <a-button type="primary" class="large" @click="goToSignup">{{
+        <a-button type="primary" class="large" @click="toSignup">{{
           $t("str_common_join")
         }}</a-button>
       </div>

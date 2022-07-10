@@ -1,22 +1,18 @@
 <script setup>
 import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/form/v-input.vue";
+import GoogleBtn from "@/components/Button/GoogleButton.vue";
+import FBBtn from "@/components/Button/FBButton.vue";
+
 import { showSuccessAlert } from "@/utils.js";
 
 import { reactive, ref, watch, onBeforeMount, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
-import { apiCreateAccont, apiCreateAccountByFB } from "@/apis/googleSheet.js";
+import { apiCreateAccont } from "@/apis/googleSheet.js";
 
-import { useRouter } from "vue-router";
-const router = useRouter();
-
-function toLoginPage() {
-  router.push("/login");
-}
-function toHomePage() {
-  router.push("/");
-}
+import { routerUtils } from "@/common/routerUtils.js";
+const { toLogin } = routerUtils();
 
 const store = useUserStore();
 const { users, count } = storeToRefs(store);
@@ -30,14 +26,6 @@ const { users, count } = storeToRefs(store);
 
 const account = ref(null);
 const password = ref(null);
-
-async function connectFB() {
-  let resp = await apiCreateAccountByFB();
-  if (resp) {
-    await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
-    toHomePage();
-  }
-}
 
 const rememberMe = ref(false);
 /**
@@ -87,7 +75,7 @@ async function singup() {
   let resp = await apiCreateAccont(data);
   if (resp) {
     await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
-    toLoginPage();
+    toLogin();
   }
 }
 </script>
@@ -114,13 +102,15 @@ async function singup() {
         <div class="login-btn-wrapper">
           <div class="btn login-btn" @click="checkValue">註冊</div>
           <div class="login">
-            已經是會員？<a class="loginLink" @click="toLoginPage">立即登入</a>。
+            已經是會員？<a class="loginLink" @click="toLogin">立即登入</a>。
           </div>
         </div>
         <div class="connentLogin-wrapper">
-          <div class="btn FB-btn" @click="connectFB">
+          <!-- <div class="btn FB-btn" @click="connectFB">
             使用 Facebook 帳號登入
-          </div>
+          </div> -->
+          <FBBtn />
+          <GoogleBtn />
         </div>
       </form>
     </div>

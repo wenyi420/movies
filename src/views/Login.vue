@@ -1,39 +1,18 @@
 <script setup>
 import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/form/v-input.vue";
+import GoogleBtn from "@/components/Button/GoogleButton.vue";
+import FBBtn from "@/components/Button/FBButton.vue";
 import { showSuccessAlert } from "@/utils.js";
 
 import { reactive, ref, watch, onBeforeMount, onMounted, computed } from "vue";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user.js";
-import {
-  apiLoginAccont,
-  apiCreateAccont,
-  apiCreateAccountByFB,
-} from "@/apis/googleSheet.js";
+import { apiLoginAccont } from "@/apis/googleSheet.js";
 
-import { useRouter } from "vue-router";
-const router = useRouter();
-
-function toSignupPage() {
-  router.push("/signup");
-}
-function toHomePage() {
-  router.push("/");
-}
-
-const store = useUserStore();
+import { routerUtils } from "@/common/routerUtils.js";
+const { toHome, toSignup } = routerUtils();
 
 const account = ref(null);
 const password = ref(null);
-
-async function connectFB() {
-  let resp = await apiCreateAccountByFB();
-  if (resp) {
-    await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
-    toHomePage();
-  }
-}
 
 const rememberMe = ref(false);
 const accountRules = reactive([
@@ -77,7 +56,7 @@ async function testLogin() {
   let resp = await apiLoginAccont(data);
   if (resp) {
     await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
-    toHomePage();
+    toHome();
   }
 }
 
@@ -91,7 +70,7 @@ async function login() {
   let resp = await apiLoginAccont(data);
   if (resp) {
     await showSuccessAlert({ title: resp.data.account + "，" + resp.msg });
-    toHomePage();
+    toHome();
   }
 }
 </script>
@@ -122,7 +101,7 @@ async function login() {
             <a href="javascript:;">需要協助?</a>
           </div>
           <div class="signup">
-            尚未加入 Netflix？<a class="signupLink" @click="toSignupPage"
+            尚未加入 Netflix？<a class="signupLink" @click="toSignup"
               >馬上註冊</a
             >。
           </div>
@@ -130,9 +109,8 @@ async function login() {
 
         <div class="connentLogin-wrapper">
           <div class="btn testLogin-btn" @click="testLogin">測試帳戶登入</div>
-          <div class="btn FB-btn" @click="connectFB">
-            使用 Facebook 帳號登入
-          </div>
+          <FBBtn />
+          <GoogleBtn />
         </div>
       </form>
     </div>
@@ -181,9 +159,6 @@ async function login() {
     border-radius: 5px;
     line-height: 1;
     cursor: pointer;
-  }
-  .FB-btn {
-    margin-top: 12px;
   }
   &::before {
     content: "";
@@ -257,9 +232,6 @@ async function login() {
 .connentLogin-wrapper {
   .testLogin-btn {
     background: #868686;
-  }
-  .FB-btn {
-    background: #4267b2;
   }
 }
 

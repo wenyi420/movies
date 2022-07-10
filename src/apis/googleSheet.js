@@ -2,7 +2,7 @@ import { useUserStore } from "@/stores/user.js";
 import { showLoadingAlert, showErrorAlert } from "@/utils.js";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycbwdfrtNQUKJ7SGNqWWut7aboQLzwwyd3WI2Kuz_7sNLLQUd5yKyCVqMaeBOvRDb5LG7/exec";
+  "https://script.google.com/macros/s/AKfycbzJ_8-sf2Yqo1MBgAHH9TRpCIdI74B0n1aGVrsSS18DpCRBpKEDnDPXA1k4XYhwhcI/exec";
 
 export const apiCreateAccont = async (data) => {
   showLoadingAlert("送出資料中");
@@ -28,14 +28,27 @@ export const apiCreateAccountByFB = async () => {
   }
 };
 
-async function createAccountHandler(data) {
+export const apiCreateAccountByGoogle = async (data) => {
+  try {
+    showLoadingAlert("連接 Google 中");
+    const resp = await createAccountHandler(data);
+    if (resp) {
+      await setUserDataToStores(resp);
+      return resp;
+    }
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
+};
+
+export const createAccountHandler = async (data) => {
   try {
     let resp = await apiPostAccount(data);
     return resp;
   } catch (e) {
     showErrorAlert({ title: e?.msg });
   }
-}
+};
 
 async function FBLogin() {
   return new Promise((resolve, reject) => {

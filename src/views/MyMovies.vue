@@ -39,6 +39,10 @@ watch(myMovies, (v) => {
 
 if (userData.value.movies) {
   INITMyMovies(userData.value.movies);
+} else {
+  setTimeout(() => {
+    isINITed.value = true;
+  }, 1500);
 }
 
 function INITMyMovies(movies = "") {

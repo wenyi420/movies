@@ -1,14 +1,13 @@
 <script setup>
 import { ref, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
 import { useSearchStore } from "@/stores/search.js";
 import { storeToRefs } from "pinia";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faL, faXmark } from "@fortawesome/free-solid-svg-icons";
 library.add(faXmark);
 
-const router = useRouter();
-const route = useRoute();
+import { routerUtils } from "@/common/routerUtils.js";
+const { toHome, toSearch, routerGoBack, getPath } = routerUtils();
 
 const searchWapprer = ref(null);
 const showSearchBox = ref(false);
@@ -24,7 +23,7 @@ const { searchText } = storeToRefs(searchStore);
 watch(searchInput, (v) => {
   if (v) {
     showCloseButton.value = true;
-    router.push("/search");
+    toSearch();
     searchHandle();
   } else {
     showCloseButton.value = false;
@@ -63,8 +62,8 @@ function checkClickOutSide(e) {
     el !== searchWapprer.value && !searchWapprer.value.contains(el);
 
   if (isClickOutSide) {
-    console.log("route.path", route.path);
-    let isSearchPage = route.path.includes("search") ? true : false;
+    console.log("route.path", getPath());
+    let isSearchPage = getPath().includes("search") ? true : false;
     if (isSearchPage && searchInput.value) return;
 
     hideSearchInputHandle();
@@ -97,12 +96,12 @@ function removeSearchListener() {
 }
 
 function goBackHandle() {
-  if (!route.path.includes("search")) return;
+  if (!getPath().includes("search")) return;
 
   if (!window.history.state.back) {
-    router.push("/");
+    toHome();
   } else {
-    router.go(-1);
+    routerGoBack();
   }
 }
 </script>

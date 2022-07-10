@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { routerUtils } from "@/common/routerUtils.js";
 
 export const useUserStore = defineStore("user", () => {
-  const router = useRouter();
+  const { toHome } = routerUtils();
   const userData = ref({});
 
   const myMovies = ref(""); // '[123,456]'
@@ -47,7 +47,7 @@ export const useUserStore = defineStore("user", () => {
     localStorage.removeItem("_id");
     isLogined.value = false;
 
-    router.push("/");
+    toHome();
   };
 
   return {

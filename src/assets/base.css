@@ -4,6 +4,7 @@
   --v-white: #ffffff;
   --v-black: #000000;
   --v-main-color: #e50914;
+  --v-mian-hover-color: #f23034;
   
   
   --v-gray-light-2: #f1f1f1;
@@ -13,11 +14,14 @@
 
   --v-border-color: rgba(60, 60, 60, 0.12);
 
+  --fb-color: #4267b2;
+  --hover-fb-color: #3a5b9d;
 
 }
 
 .dark{
   --color-main: var(--v-main-color);
+  --hover-color-main: var(--v-mian-hover-color);
   --color-background: #181818;
   --color-text: var(--v-white);
   --color-section: #242424;
@@ -55,6 +59,7 @@
 
 .light {
   --color-main: var(--v-main-color);
+  --hover-color-main: var(--v-mian-hover-color);
   --color-background: #fff;
   --color-text: #213547;
   --color-text-2: rgb(60 60 60 / 70%);
