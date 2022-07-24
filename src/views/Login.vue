@@ -3,6 +3,7 @@ import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/form/v-input.vue";
 import GoogleBtn from "@/components/Button/GoogleButton.vue";
 import FBBtn from "@/components/Button/FBButton.vue";
+import LineBtn from "@/components/Button/LineButton.vue";
 import { showSuccessAlert } from "@/utils.js";
 
 import { reactive, ref, watch, onBeforeMount, onMounted, computed } from "vue";
@@ -111,6 +112,7 @@ async function login() {
           <div class="btn testLogin-btn" @click="testLogin">測試帳戶登入</div>
           <FBBtn />
           <GoogleBtn />
+          <LineBtn />
         </div>
       </form>
     </div>

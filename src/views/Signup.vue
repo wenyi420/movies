@@ -3,6 +3,7 @@ import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/form/v-input.vue";
 import GoogleBtn from "@/components/Button/GoogleButton.vue";
 import FBBtn from "@/components/Button/FBButton.vue";
+import LineBtn from "@/components/Button/LineButton.vue";
 
 import { showSuccessAlert } from "@/utils.js";
 
@@ -106,11 +107,9 @@ async function singup() {
           </div>
         </div>
         <div class="connentLogin-wrapper">
-          <!-- <div class="btn FB-btn" @click="connectFB">
-            使用 Facebook 帳號登入
-          </div> -->
           <FBBtn />
           <GoogleBtn />
+          <LineBtn />
         </div>
       </form>
     </div>

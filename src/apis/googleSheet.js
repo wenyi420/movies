@@ -2,13 +2,12 @@ import { useUserStore } from "@/stores/user.js";
 import { showLoadingAlert, showErrorAlert } from "@/utils.js";
 
 const baseURL =
-  "https://script.google.com/macros/s/AKfycbzJ_8-sf2Yqo1MBgAHH9TRpCIdI74B0n1aGVrsSS18DpCRBpKEDnDPXA1k4XYhwhcI/exec";
+  "https://script.google.com/macros/s/AKfycbz3Dlg-g5ThEpii15x5knsAoHeb3ZuvqhxNz4xVmRfDxDQEKoN2h8QpCBRIK59ZickA/exec";
 
 export const apiCreateAccont = async (data) => {
   showLoadingAlert("送出資料中");
   const resp = await createAccountHandler(data);
   if (resp) {
-    await setUserDataToStores(resp);
     return resp;
   }
 };
@@ -31,6 +30,19 @@ export const apiCreateAccountByFB = async () => {
 export const apiCreateAccountByGoogle = async (data) => {
   try {
     showLoadingAlert("連接 Google 中");
+    const resp = await createAccountHandler(data);
+    if (resp) {
+      await setUserDataToStores(resp);
+      return resp;
+    }
+  } catch (e) {
+    showErrorAlert({ title: e?.msg });
+  }
+};
+
+export const apiCreateAccountByLine = async (data) => {
+  try {
+    showLoadingAlert("連接 Line 中");
     const resp = await createAccountHandler(data);
     if (resp) {
       await setUserDataToStores(resp);

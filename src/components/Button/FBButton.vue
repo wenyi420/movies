@@ -40,6 +40,8 @@ async function connectFB() {
   margin-right: 12px;
   display: inline-block;
   width: 20px;
+  display: inline-block;
+  height: 20px;
   fill: var(--v-white);
 }
 </style>

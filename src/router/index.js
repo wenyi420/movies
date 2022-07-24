@@ -39,8 +39,13 @@ const router = createRouter({
       name: "search",
       component: () => import("@/views/Search.vue"),
     },
+    {
+      path: "/lineLoginRedirect",
+      name: "lineLoginRedirect",
+      component: () => import("@/views/LineLoginRedirect.vue"),
+    },
     // 防呆處理
-    { path: "/*", redirect: "/" },
+    { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
   scrollBehavior() {
     // always scroll to top

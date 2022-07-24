@@ -5,7 +5,7 @@ export function routerUtils() {
   const route = useRoute();
 
   function toHome() {
-    router.push("./");
+    router.push("/");
   }
   function toSignup() {
     router.push("/signup");
@@ -20,7 +20,7 @@ export function routerUtils() {
   }
 
   function toSearch() {
-    router.push("./search");
+    router.push("/search");
   }
 
   function routerGoBack() {
@@ -28,7 +28,7 @@ export function routerUtils() {
   }
 
   function getPath() {
-    return route.path
+    return route.path;
   }
 
   return {
@@ -38,6 +38,6 @@ export function routerUtils() {
     toMyMovies,
     toSearch,
     routerGoBack,
-    getPath
+    getPath,
   };
 }
