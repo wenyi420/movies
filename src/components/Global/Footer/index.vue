@@ -1,7 +1,11 @@
 <script setup>
-import { reactive, ref, defineProps } from "vue";
+import { reactive, ref, defineProps, computed } from "vue";
 import { changeI18n } from "@/i18n/config.js";
 import { isMobile } from "@/utils.js";
+
+const props = defineProps(["isLogined"]);
+const lang = ref("zh-TW");
+
 const footerList = reactive([
   {
     text: "常見問題",
@@ -90,25 +94,16 @@ const mobileFooterList = reactive([
     link: "",
   },
 ]);
-
-const footerLinks = getFooterLinks();
-
-const props = defineProps(["isLogined"]);
-const isLogined = props.isLogined;
-
-function getFooterLinks() {
+const footerLinks = computed(() => {
   if (isMobile()) {
     return mobileFooterList;
   } else {
     return footerList;
   }
-}
-
+});
 const handleChange = (lang) => {
   changeI18n(lang);
 };
-
-const lang = ref("zh-TW");
 </script>
 
 <template>

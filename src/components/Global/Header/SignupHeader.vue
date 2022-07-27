@@ -1,17 +1,12 @@
 <script setup>
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-
-function toHomePage() {
-  router.push("/");
-}
+import { routerUtils } from "@/common/routerUtils.js";
+const { toHome } = routerUtils();
 </script>
 
 <template>
   <header class="login-header">
     <div class="left">
-      <span class="logo" @click="toHomePage">
+      <span class="logo" @click="toHome">
         <svg
           viewBox="0 0 111 30"
           class="svg-icon svg-icon-netflix-logo desk-logo"
@@ -45,8 +40,6 @@ function toHomePage() {
 </template>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Akshar&display=swap");
-
 .login-header {
   position: absolute;
   left: 0;
@@ -66,12 +59,6 @@ header {
   .left {
     .logo {
       fill: var(--color-main);
-      // letter-spacing: 3px;
-      // font-family: "Akshar", sans-serif;
-      // line-height: 1;
-      // color:
-      // font-size: 50px;
-      // font-weight: bold;
       cursor: pointer;
 
       .svg-icon-netflix-logo {

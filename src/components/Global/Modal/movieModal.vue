@@ -6,9 +6,7 @@ import Plus from "@/components/Icon/plus.vue";
 import ThumbUp from "@/components/Icon/thumbUp.vue";
 
 import PopupModal from "@/components/Global/Modal/popupModal.vue";
-import noImg from "@/assets/image/noImg.svg";
-import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
-import { i18n } from "@/i18n/config.js";
+import MovieCardList from "@/components/MovieCardList.vue";
 
 import { storeToRefs } from "pinia";
 import { useMovieModalStore } from "@/stores/movieModal.js";
@@ -17,6 +15,8 @@ import { useUserStore } from "@/stores/user.js";
 import {
   addToMyMovieHandle,
   removeToMyMovieHandle,
+  getFirstSentence,
+  getMovieScore,
 } from "@/common/movieHandle.js";
 
 const movieModalStore = useMovieModalStore();
@@ -69,31 +69,6 @@ function isSimilarAddedMovie(similarID) {
   return isFind ? true : false;
 }
 
-function getFirstSentence(info) {
-  if (info) {
-    let result = "";
-    const MAX_LENGTH = 65;
-    let searchText;
-    if (i18n.global.locale === "zh-TW") {
-      searchText = "。";
-    }
-    if (i18n.global.locale === "en") {
-      searchText = ".";
-    }
-    result = info.split(searchText)[0];
-    if (result.length > MAX_LENGTH) {
-      return (result = result.substr(0, MAX_LENGTH) + "...");
-    }
-
-    return result + searchText;
-  }
-  return "";
-}
-
-function getMovieScore(score) {
-  return (score * 10).toFixed(0);
-}
-
 const addToMyMovies = async () => {
   let id = movieData.value.isNetflix
     ? "n" + movieData.value.id
@@ -105,17 +80,6 @@ const addToMyMovies = async () => {
 const removeToMyMovies = async () => {
   let isRemove = await removeToMyMovieHandle(movieData.value.id);
   isAddedMovie.value = isRemove ? false : true;
-};
-
-const addSimilarMovieToMyMovie = async (item) => {
-  let similarMovieID = item.id;
-  let isAdded = await addToMyMovieHandle(similarMovieID);
-  item.isAddedMovie = isAdded ? true : false;
-};
-const removeSimilarMovieToMyMovie = async (item) => {
-  let similarMovieID = item.id;
-  let isRemove = await removeToMyMovieHandle(similarMovieID);
-  item.isAddedMovie = isRemove ? false : true;
 };
 
 defineExpose({
@@ -186,59 +150,7 @@ defineExpose({
           </div>
           <div class="similarMovies">
             <h3 class="title">類似影片</h3>
-            <div class="similarMovies-list">
-              <div
-                class="similarMovies-item"
-                v-for="item in movieData.similarMovies"
-                :key="item.id"
-              >
-                <div class="similarMovies-img-wrapper">
-                  <div
-                    class="img-bg"
-                    :style="{
-                      'background-image':
-                        'url(' +
-                        'https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/' +
-                        item.backdrop_path +
-                        ')',
-                    }"
-                  >
-                    <img v-if="item.backdrop_path" :src="movieImg" alt="" />
-                    <img v-else :src="noImg" alt="" />
-                  </div>
-                </div>
-                <div class="similarMovies-item-info">
-                  <div class="similarMovies-item-header">
-                    <div class="left">
-                      <div class="title">{{ item.title }}</div>
-                      <div class="match-score">
-                        {{ getMovieScore(item.vote_average) }}% 適合你
-                      </div>
-                    </div>
-                    <div class="right">
-                      <!-- 新增至我的片單 -->
-                      <div
-                        class="infoIcon-btn"
-                        v-show="!item.isAddedMovie"
-                        @click="addSimilarMovieToMyMovie(item)"
-                      >
-                        <Plus />
-                      </div>
-                      <!-- 從我的片單移除 -->
-                      <div
-                        v-show="item.isAddedMovie"
-                        class="infoIcon-btn"
-                        @click="removeSimilarMovieToMyMovie(item)"
-                      >
-                        <CheckMark />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="desc">{{ getFirstSentence(item.overview) }}</div>
-                </div>
-              </div>
-            </div>
+            <MovieCardList :movies="movieData.similarMovies" />
           </div>
         </div>
       </template>
@@ -429,12 +341,6 @@ defineExpose({
 .similarMovies {
   padding: 0rem 3rem 1rem;
 
-  .similarMovies-list {
-    display: grid;
-    grid-template-columns: 33.33333% 33.33333% 33.33333%;
-    margin: -10px;
-  }
-
   h3.title {
     font-weight: 700;
     font-size: 28px;
@@ -444,9 +350,6 @@ defineExpose({
 
   @media screen and (max-width: 1024px) {
     padding: 0rem 2rem 1rem;
-    .similarMovies-list {
-      grid-template-columns: 50% 50%;
-    }
   }
   @media screen and (max-width: 480px) {
     padding: 1rem;
@@ -455,121 +358,12 @@ defineExpose({
     }
   }
 }
-
-.similarMovies-item {
-  margin: 10px;
-  background: #2f2f2f;
-  border-radius: 5px;
-  overflow: hidden;
-
-  .similarMovies-img-wrapper {
-    width: 100%;
-    img {
-      position: relative;
-      z-index: -1; // 呈現 movie-item 背景圖用
-      width: 100%;
-      height: auto;
-      visibility: hidden; // 避免顯示圖片文字
-    }
-
-    .img-bg {
-      width: 100%;
-      height: 100%;
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
-    }
-  }
-  .similarMovies-item-info {
-    padding: 20px 15px;
-  }
-
-  @media screen and (max-width: 480px) {
-    .similarMovies-item-info {
-      padding: 12px;
-    }
-  }
-}
-
-.similarMovies-item-header {
-  position: relative;
-
-  .title {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  .match-score {
-    color: #46d369;
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 16px;
-  }
-  .left {
-    width: calc(100% - 55px);
-  }
-  .right {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-  @media screen and (max-width: 480px) {
-    .left {
-      width: 100%;
-    }
-    .right {
-      position: inherit;
-      margin-bottom: 8px;
-    }
-  }
-}
-.infoIcon-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 2px solid;
-  background-color: rgba(42, 42, 42, 0.6);
-  border-color: rgba(255, 255, 255, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-
-  &.play {
-    background-color: #fff;
-    color: #000;
-  }
-
-  svg {
-    width: 24px;
-    height: 24px;
-  }
-  @media screen and (max-width: 1440px) {
-    width: 34px;
-    height: 34px;
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-}
-
 .light {
   .img-wrapper .title {
     color: #fff !important;
   }
   .img-wrapper-mask {
     background: linear-gradient(to top, #f3f3f3, transparent 50%) !important;
-  }
-
-  .infoIcon-btn {
-    background-color: #fff !important;
-    border-color: var(--border-color) !important;
-    color: var(---color-tex) !important;
-  }
-
-  .similarMovies-item {
-    background: #fff !important;
-    border: 1px solid var(--border-color);
   }
 }
 </style>

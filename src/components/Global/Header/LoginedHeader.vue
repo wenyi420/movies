@@ -3,21 +3,21 @@ import { onMounted, ref } from "@vue/runtime-core";
 import SwitchAppearance from "@/components/Global/switch-appearance.vue";
 import SearchMovie from "@/components/Global/Header/searchMovie.vue";
 import AccountButton from "@/components/Global/Header/accountButton.vue";
-
 import { routerUtils } from "@/common/routerUtils.js";
-const { toHome, toMyMovies } = routerUtils();
 
+const { toHome, toMyMovies } = routerUtils();
 const hasScrolled = ref(false);
+
+onMounted(() => {
+  checkScrolling();
+});
+
 function checkScrolling() {
   window.addEventListener("scroll", () => {
     let scroll = document.body.getBoundingClientRect().top;
     hasScrolled.value = scroll < 0 ? true : false;
   });
 }
-
-onMounted(() => {
-  checkScrolling();
-});
 </script>
 
 <template>
@@ -38,36 +38,6 @@ onMounted(() => {
           </g>
         </svg>
       </span>
-      <!-- <span class="mb-logo" @click="toHome">
-        <svg
-          class="svg-icon svg-icon-n-logo"
-          focusable="false"
-          viewBox="225 0 552 1000"
-          aria-hidden="true"
-        >
-          <defs>
-            <radialGradient
-              id="1e66cd89-3516-4d2d-a3c5-630f8f11feca-a"
-              r="75%"
-              gradientTransform="matrix(.38 0 .5785 1 .02 0)"
-            >
-              <stop offset="60%" stop-opacity=".3"></stop>
-              <stop offset="90%" stop-opacity=".05"></stop>
-              <stop offset="100%" stop-opacity="0"></stop>
-            </radialGradient>
-          </defs>
-          <path d="M225 0v1000c60-8 138-14 198-17V0H225" fill="#b1060e"></path>
-          <path d="M579 0v983c71 3 131 9 198 17V0H579" fill="#b1060e"></path>
-          <path
-            d="M225 0v200l198 600V557l151 426c76 3 136 9 203 17V800L579 200v240L423 0H225"
-            fill="url(#1e66cd89-3516-4d2d-a3c5-630f8f11feca-a)"
-          ></path>
-          <path
-            d="M225 0l349 983c76 3 136 9 203 17L423 0H225"
-            fill="#e50914"
-          ></path>
-        </svg>
-      </span> -->
       <a-space :size="25">
         <a class="homeLink" @click="toHome">首頁</a>
         <a class="myMovies" @click="toMyMovies">我的片單</a>
@@ -82,21 +52,8 @@ onMounted(() => {
     </div>
   </header>
 </template>
-<style lang="scss">
-@media screen and (max-width: 480px) {
-  header.isLogined {
-    .left {
-      .ant-space {
-        gap: 0 !important;
-      }
-    }
-  }
-}
-</style>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Akshar&display=swap");
-
 header {
   position: fixed;
   top: 0;
@@ -133,10 +90,6 @@ header {
       width: 93px;
     }
   }
-  // .ant-switch-checked {
-  //   background-color: var(--color-background) !important;
-  //   border: 1px solid rgb(84 84 84 / 65%) !important;
-  // }
 }
 
 header.active {
@@ -189,6 +142,15 @@ body.b-transition header {
 
       .homeLink {
         display: none;
+      }
+    }
+  }
+}
+@media screen and (max-width: 480px) {
+  header.isLogined {
+    .left {
+      .ant-space {
+        gap: 0 !important;
       }
     }
   }

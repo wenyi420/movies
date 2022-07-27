@@ -1,7 +1,5 @@
 <script setup>
-import { useRouter } from "vue-router";
 import switchAppearance from "@/components/Global/switch-appearance.vue";
-
 import { routerUtils } from "@/common/routerUtils.js";
 const { toHome, toLogin, toSignup } = routerUtils();
 </script>
@@ -75,8 +73,6 @@ const { toHome, toLogin, toSignup } = routerUtils();
 </template>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Akshar&display=swap");
-
 header {
   position: fixed;
   top: 0;
@@ -96,12 +92,6 @@ header {
   .left {
     .logo,
     .mb-logo {
-      // letter-spacing: 3px;
-      // font-family: "Akshar", sans-serif;
-      // line-height: 1;
-      // color: var(--color-main);
-      // font-size: 32px;
-      // font-weight: bold;
       width: 24px;
       height: 40px;
       fill: var(--color-main);
@@ -115,10 +105,6 @@ header {
       width: 110px;
     }
   }
-  // .ant-switch-checked {
-  //   background-color: var(--color-background) !important;
-  //   border: 1px solid rgb(84 84 84 / 65%) !important;
-  // }
 }
 
 body.b-transition header {

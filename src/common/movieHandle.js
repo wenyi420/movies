@@ -5,6 +5,7 @@ import {
 } from "@/common/message.js";
 import { useUserStore } from "@/stores/user.js";
 import { apiUpdateMovies } from "@/apis/googleSheet.js";
+import { i18n } from "@/i18n/config.js";
 
 // return 回傳是否成功，控制 icon 呈現
 export const addToMyMovieHandle = async (movieID) => {
@@ -35,3 +36,30 @@ export const removeToMyMovieHandle = async (movieID) => {
   openErrorMessage("從我的片單移除失敗", movieID);
   return false;
 };
+
+// 取得電影描述第一句
+export const getFirstSentence = (info) => {
+  if (info) {
+    let result = "";
+    const MAX_LENGTH = 65;
+    let searchText;
+    if (i18n.global.locale === "zh-TW") {
+      searchText = "。";
+    }
+    if (i18n.global.locale === "en") {
+      searchText = ".";
+    }
+    result = info.split(searchText)[0];
+    if (result.length > MAX_LENGTH) {
+      return (result = result.substr(0, MAX_LENGTH) + "...");
+    }
+
+    return result + searchText;
+  }
+  return "";
+}
+
+export const getMovieScore = (score) => {
+  return (score * 10).toFixed(0);
+}
+

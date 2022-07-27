@@ -1,18 +1,13 @@
 <script setup>
-import { ref, watch } from "vue";
 import profilePicBlue from "@/assets/image/profilePic-blue.png";
 import profilePicYellow from "@/assets/image/profilePic-yellow.png";
 import profilePicRed from "@/assets/image/profilePic-red.png";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-library.add(faXmark);
-
 import { useUserStore } from "@/stores/user.js";
-const userStore = useUserStore();
 
-function logout() {
-  userStore.logOutHanlder();
-}
+library.add(faXmark);
+const { logOutHanlder } = useUserStore();
 </script>
 
 <template>
@@ -121,7 +116,7 @@ function logout() {
       </div>
       <div class="list-section">
         <li>
-          <a @click="logout">登出 Netflix</a>
+          <a @click="logOutHanlder">登出 Netflix</a>
         </li>
       </div>
     </div>

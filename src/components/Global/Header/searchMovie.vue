@@ -3,10 +3,11 @@ import { ref, watch } from "vue";
 import { useSearchStore } from "@/stores/search.js";
 import { storeToRefs } from "pinia";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faL, faXmark } from "@fortawesome/free-solid-svg-icons";
-library.add(faXmark);
-
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { routerUtils } from "@/common/routerUtils.js";
+import SearchIcon from "@/components/Icon/search.vue";
+
+library.add(faXmark);
 const { toHome, toSearch, routerGoBack, getPath } = routerUtils();
 
 const searchWapprer = ref(null);
@@ -52,18 +53,13 @@ function showSearchInputHandle() {
   }, 10);
 }
 
-// todo 做成 mixin clickOutside Function
 function checkClickOutSide(e) {
-  console.log("e.target", e.target);
-  console.log("searchWapprer.value", searchWapprer.value);
-  let el = e.target;
-
-  let isClickOutSide =
+  const el = e.target;
+  const isClickOutSide =
     el !== searchWapprer.value && !searchWapprer.value.contains(el);
 
   if (isClickOutSide) {
-    console.log("route.path", getPath());
-    let isSearchPage = getPath().includes("search") ? true : false;
+    const isSearchPage = getPath().includes("search") ? true : false;
     if (isSearchPage && searchInput.value) return;
 
     hideSearchInputHandle();
@@ -113,21 +109,7 @@ function goBackHandle() {
       v-show="!showSearchBox"
       @click="showSearchInputHandle"
     >
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        class="search-icon"
-      >
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M13 11C13 13.7614 10.7614 16 8 16C5.23858 16 3 13.7614 3 11C3 8.23858 5.23858 6 8 6C10.7614 6 13 8.23858 13 11ZM14.0425 16.2431C12.5758 17.932 10.4126 19 8 19C3.58172 19 0 15.4183 0 11C0 6.58172 3.58172 3 8 3C12.4183 3 16 6.58172 16 11C16 11.9287 15.8417 12.8205 15.5507 13.6497L24.2533 18.7028L22.7468 21.2972L14.0425 16.2431Z"
-          fill="currentColor"
-        ></path>
-      </svg>
+      <SearchIcon />
     </div>
     <div
       class="search-box"
@@ -135,21 +117,7 @@ function goBackHandle() {
       :class="{ active: showSearchInput }"
     >
       <div class="search-icon">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          class="search-icon"
-        >
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M13 11C13 13.7614 10.7614 16 8 16C5.23858 16 3 13.7614 3 11C3 8.23858 5.23858 6 8 6C10.7614 6 13 8.23858 13 11ZM14.0425 16.2431C12.5758 17.932 10.4126 19 8 19C3.58172 19 0 15.4183 0 11C0 6.58172 3.58172 3 8 3C12.4183 3 16 6.58172 16 11C16 11.9287 15.8417 12.8205 15.5507 13.6497L24.2533 18.7028L22.7468 21.2972L14.0425 16.2431Z"
-            fill="currentColor"
-          ></path>
-        </svg>
+        <SearchIcon />
       </div>
       <input
         class="search-input"
