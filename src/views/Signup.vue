@@ -1,6 +1,6 @@
 <script setup>
 import loginBG from "@/assets/image/loginBanner.jpg";
-import vInput from "@/components/form/v-input.vue";
+import vInput from "@/components/Form/v-input.vue";
 import GoogleBtn from "@/components/Button/GoogleButton.vue";
 import FBBtn from "@/components/Button/FBButton.vue";
 import LineBtn from "@/components/Button/LineButton.vue";

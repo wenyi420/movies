@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch } from "vue";
-import PlayIcon from "@/components/Icon/play.vue";
-import CheckMark from "@/components/Icon/checkMark.vue";
-import Plus from "@/components/Icon/plus.vue";
-import ThumbUp from "@/components/Icon/thumbUp.vue";
+import PlayIcon from "@/components/Icon/Play.vue";
+import CheckMark from "@/components/Icon/CheckMark.vue";
+import Plus from "@/components/Icon/Plus.vue";
+import ThumbUp from "@/components/Icon/ThumbUp.vue";
 
-import PopupModal from "@/components/Global/Modal/popupModal.vue";
+import PopupModal from "@/components/Global/Modal/PopupModal.vue";
 import MovieCardList from "@/components/MovieCardList.vue";
 
 import { storeToRefs } from "pinia";

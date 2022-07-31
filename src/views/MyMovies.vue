@@ -13,7 +13,7 @@ import { apiGetMovieDetail, apiGetNexflixDetail } from "@/apis/movie.js";
 import noImg from "@/assets/image/noImg.jpg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
 import renderComponent from "@/renderComponent";
-import MovieModal from "@/components/Global/Modal/movieModal.vue";
+import MovieModal from "@/components/Global/Modal/MovieModal.vue";
 
 const store = useUserStore();
 const { userData, myMovies } = storeToRefs(store);
@@ -198,7 +198,7 @@ const createPreviewMovieModal = async (data) => {
   destroyComp?.();
   destroyComp = renderComponent({
     el: "#triggerModal",
-    component: (await import("@/components/slide/previewSlideMovie.vue"))
+    component: (await import("@/components/Slide/PreviewSlideMovie.vue"))
       .default,
     props: {
       key: data.movie.id,

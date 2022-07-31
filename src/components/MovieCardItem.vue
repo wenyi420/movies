@@ -2,8 +2,8 @@
 import { defineProps} from "vue";
 import noImg from "@/assets/image/noImg.svg";
 import movieImg from "@/assets/image/LoginedMovieSlideImgBox.png";
-import CheckMark from "@/components/Icon/checkMark.vue";
-import Plus from "@/components/Icon/plus.vue";
+import CheckMark from "@/components/Icon/CheckMark.vue";
+import Plus from "@/components/Icon/Plus.vue";
 
 import {
   addToMyMovieHandle,

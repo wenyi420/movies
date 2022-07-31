@@ -130,7 +130,7 @@ const createPreviewMovieModal = async (data) => {
   destroyComp?.();
   destroyComp = renderComponent({
     el: "#triggerModal",
-    component: (await import("@/components/slide/previewSlideMovie.vue"))
+    component: (await import("@/components/Slide/PreviewSlideMovie.vue"))
       .default,
     props: {
       key: data.movie.id,

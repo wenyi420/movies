@@ -7,12 +7,11 @@ import {
   onBeforeUnmount,
   computed,
 } from "vue";
-import PlayIcon from "@/components/Icon/play.vue";
-import CheckMark from "@/components/Icon/checkMark.vue";
-import Plus from "@/components/Icon/plus.vue";
-import ThumbUp from "@/components/Icon/thumbUp.vue";
-
-import ArrowDown from "@/components/Icon/arrowDown.vue";
+import PlayIcon from "@/components/Icon/Play.vue";
+import CheckMark from "@/components/Icon/CheckMark.vue";
+import Plus from "@/components/Icon/Plus.vue";
+import ThumbUp from "@/components/Icon/ThumbUp.vue";
+import ArrowDown from "@/components/Icon/ArrowDown.vue";
 
 import { apiGetPopularMovie } from "@/apis/movie.js";
 import { storeToRefs } from "pinia";

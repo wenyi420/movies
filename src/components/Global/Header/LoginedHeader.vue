@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, ref } from "@vue/runtime-core";
-import SwitchAppearance from "@/components/Global/switch-appearance.vue";
-import SearchMovie from "@/components/Global/Header/searchMovie.vue";
-import AccountButton from "@/components/Global/Header/accountButton.vue";
+import SwitchAppearance from "@/components/Global/Header/SwitchAppearance.vue";
+import SearchMovie from "@/components/Global/Header/SearchMovie.vue";
+import AccountButton from "@/components/Global/Header/AccountButton.vue";
 import { routerUtils } from "@/common/routerUtils.js";
 
 const { toHome, toMyMovies } = routerUtils();

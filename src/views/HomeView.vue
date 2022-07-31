@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, onUpdated, ref } from "vue";
 
-import MovieCategory from "@/components/slide/movieCategory.vue";
+import MovieCategory from "@/components/Slide/MovieCategory.vue";
 import { routerUtils } from "@/common/routerUtils.js";
 
 import { storeToRefs } from "pinia";
@@ -12,9 +12,9 @@ import { i18n } from "@/i18n/config.js";
 import { apiGetNexflix, apiGetPopularMovie } from "@/apis/movie.js";
 import { reactive } from "@vue/reactivity";
 
-import MovieModal from "@/components/Global/Modal/movieModal.vue";
+import MovieModal from "@/components/Global/Modal/MovieModal.vue";
 
-import PlayIcon from "@/components/Icon/play.vue";
+import PlayIcon from "@/components/Icon/Play.vue";
 
 const { toSignup } = routerUtils();
 

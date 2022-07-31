@@ -1,5 +1,5 @@
 <script setup>
-import switchAppearance from "@/components/Global/switch-appearance.vue";
+import switchAppearance from "@/components/Global/Header/SwitchAppearance.vue";
 import { routerUtils } from "@/common/routerUtils.js";
 const { toHome, toLogin, toSignup } = routerUtils();
 </script>
