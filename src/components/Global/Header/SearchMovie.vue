@@ -5,7 +5,7 @@ import { storeToRefs } from "pinia";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { routerUtils } from "@/common/routerUtils.js";
-import SearchIcon from "@/components/Icon/search.vue";
+import SearchIcon from "@/components/Icon/Search.vue";
 
 library.add(faXmark);
 const { toHome, toSearch, routerGoBack, getPath } = routerUtils();
