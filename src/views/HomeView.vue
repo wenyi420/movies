@@ -7,7 +7,9 @@ import { routerUtils } from "@/common/routerUtils.js";
 
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user.js";
-import { useMovieModalStore } from "@/stores/movieModal.js";
+
+import { useMovieModal } from "@/composables/movieModal.js";
+
 import { i18n } from "@/i18n/config.js";
 
 import { apiGetNexflix, apiGetPopularMovie } from "@/apis/movie.js";
@@ -22,8 +24,7 @@ const { toSignup } = routerUtils();
 const store = useUserStore();
 const { isLogined } = storeToRefs(store);
 
-const movieModalStore = useMovieModalStore();
-const { isShow } = storeToRefs(movieModalStore);
+const { showMovieModal, resetMovieModalData } = useMovieModal();
 
 const movieData = reactive({});
 
@@ -70,8 +71,9 @@ const getSimilarMovies = (genres) => {
       movieData.similarMovies = similarMovies.value;
       movieData.isNetflix = true;
       console.log("setmoviedata", movieData);
-      movieModalStore.resetMovieData(movieData);
-      isShow.value = true;
+
+      resetMovieModalData(movieData);
+      showMovieModal();
     });
   }
 };

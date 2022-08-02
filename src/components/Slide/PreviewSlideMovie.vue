@@ -12,19 +12,15 @@ import CheckMark from "@/components/Icon/CheckMark.vue";
 import Plus from "@/components/Icon/Plus.vue";
 import ThumbUp from "@/components/Icon/ThumbUp.vue";
 import ArrowDown from "@/components/Icon/ArrowDown.vue";
-
 import { apiGetPopularMovie } from "@/apis/movie.js";
-import { storeToRefs } from "pinia";
-import { useMovieModalStore } from "@/stores/movieModal.js";
+import { useMovieModal } from "@/composables/movieModal.js";
 import { useUserStore } from "@/stores/user.js";
-
 import {
   addToMyMovieHandle,
   removeToMyMovieHandle,
 } from "@/common/movieHandle.js";
 
-const movieModalStore = useMovieModalStore();
-const { isShow } = storeToRefs(movieModalStore);
+const { showMovieModal, resetMovieModalData } = useMovieModal();
 
 export default defineComponent({
   name: "previewSlideMovie",
@@ -103,7 +99,7 @@ export default defineComponent({
     }
 
     const similarMovies = ref([]);
-    function showMovieModal() {
+    function showModal() {
       let movieData = props.movie.movie;
       let genres = movieData.genre_ids ? movieData.genre_ids : movieData.genres;
       getSimilarMovies(genres);
@@ -128,8 +124,8 @@ export default defineComponent({
             id: movieID,
           };
 
-          movieModalStore.resetMovieData(reuslt);
-          isShow.value = true;
+          resetMovieModalData(reuslt);
+          showMovieModal();
         });
       }
     };
@@ -149,7 +145,7 @@ export default defineComponent({
       count,
       isActive,
       getMovieScore,
-      showMovieModal,
+      showModal,
       isAddedMovie,
       addToMyMovies,
       removeToMyMovies,
@@ -210,7 +206,7 @@ export default defineComponent({
           </div>
         </div>
         <div class="right">
-          <div class="infoIcon-btn" @click="showMovieModal">
+          <div class="infoIcon-btn" @click="showModal">
             <!-- <font-awesome-icon icon="chevron-down" /> -->
             <ArrowDown />
           </div>

@@ -4,14 +4,10 @@ import PlayIcon from "@/components/Icon/Play.vue";
 import CheckMark from "@/components/Icon/CheckMark.vue";
 import Plus from "@/components/Icon/Plus.vue";
 import ThumbUp from "@/components/Icon/ThumbUp.vue";
-
 import PopupModal from "@/components/Global/Modal/PopupModal.vue";
 import MovieCardList from "@/components/MovieCardList.vue";
-
-import { storeToRefs } from "pinia";
-import { useMovieModalStore } from "@/stores/movieModal.js";
+import { useMovieModal } from "@/composables/movieModal.js";
 import { useUserStore } from "@/stores/user.js";
-
 import {
   addToMyMovieHandle,
   removeToMyMovieHandle,
@@ -19,9 +15,7 @@ import {
   getMovieScore,
 } from "@/common/movieHandle.js";
 
-const movieModalStore = useMovieModalStore();
-const { isShow, data } = storeToRefs(movieModalStore);
-
+const { isShow, data: modalData } = useMovieModal();
 const store = useUserStore();
 
 let userMovies;
@@ -38,8 +32,6 @@ watch(isShow, (v) => {
 const modal = ref(null);
 const movieData = ref({});
 
-console.log("movie data", data);
-
 const isAddedMovie = ref(false);
 
 function showModalHandler() {
@@ -47,7 +39,7 @@ function showModalHandler() {
 }
 
 function setMovieData() {
-  movieData.value = data.value;
+  movieData.value = modalData;
 }
 
 function checkIsAddedToMyMovies() {
@@ -275,39 +267,6 @@ defineExpose({
         }
       }
     }
-
-    .infoIcon-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 2px solid;
-      background-color: rgba(42, 42, 42, 0.6);
-      border-color: rgba(255, 255, 255, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-right: 10px;
-      cursor: pointer;
-
-      &.play {
-        background-color: #fff;
-        color: #000;
-      }
-
-      svg {
-        width: 24px;
-        height: 24px;
-      }
-
-      @media screen and (max-width: 480px) {
-        width: 32px;
-        height: 32px;
-        svg {
-          width: 20px;
-          height: 20px;
-        }
-      }
-    }
   }
   .img-wrapper-mask {
     width: 100%;
@@ -358,12 +317,52 @@ defineExpose({
     }
   }
 }
+
+.infoIcon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid;
+  background-color: rgba(42, 42, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+  cursor: pointer;
+
+  &.play {
+    background-color: #fff;
+    color: #000;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
 .light {
   .img-wrapper .title {
     color: #fff !important;
   }
   .img-wrapper-mask {
     background: linear-gradient(to top, #f3f3f3, transparent 50%) !important;
+  }
+
+  .infoIcon-btn {
+    background-color: #fff !important;
+    border-color: var(--border-color) !important;
+    color: var(---color-tex) !important;
   }
 }
 </style>

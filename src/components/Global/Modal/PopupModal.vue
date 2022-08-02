@@ -1,14 +1,13 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
-import { useMovieModalStore } from "@/stores/movieModal.js";
+import { useMovieModal } from "@/composables/movieModal.js";
 import { isMobile } from "@/utils.js";
 
 const _isMobile = isMobile();
 const modalOpenClass = _isMobile ? "mobile-modal-open" : "modal-open";
 
-const movieModalStore = useMovieModalStore();
-const { isShow } = storeToRefs(movieModalStore);
+const { hideMovieModal } = useMovieModal();
 
 const modalContainer = ref(null);
 const modal = ref(null);
@@ -32,7 +31,7 @@ function showModalHandler() {
 function closeModalHandler() {
   removeClickOutSideEvent();
   isShowModal.value = false;
-  isShow.value = false;
+  hideMovieModal();
 
   // 等淡出動畫結束, 避免雙滾軸出現
   setTimeout(() => {
