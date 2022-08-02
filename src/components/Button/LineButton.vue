@@ -1,4 +1,5 @@
 <script setup>
+import BaseLoginButton from "@/components/Button/BaseLoginButton.vue";
 import { apiCreateAccountByLine } from "@/apis/googleSheet.js";
 import { showSuccessAlert, showErrorAlert } from "@/utils.js";
 import { routerUtils } from "@/common/routerUtils.js";
@@ -65,26 +66,20 @@ function createRandomID() {
 }
 </script>
 <template>
-  <div class="btn line-btn" @click="lineLogin">
-    <img class="btn-icon" :src="lineIcon" />
+  <BaseLoginButton :use-icon="true" class="line-btn" @click="lineLogin">
+    <template #icon>
+      <img :src="lineIcon" />
+    </template>
     使用 Line 帳號登入
-  </div>
+  </BaseLoginButton>
 </template>
 
 <style lang="scss" scoped>
-.connentLogin-wrapper {
-  .line-btn {
-    background: #00be00;
-    margin-top: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.line-btn {
+  background: #00be00;
 }
-.btn-icon {
-  margin-right: 12px;
-  display: inline-block;
-  width: 20px;
-  fill: var(--v-white);
+
+img {
+  transform: scale(1.4);
 }
 </style>

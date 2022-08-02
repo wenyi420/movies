@@ -2,6 +2,7 @@
 import { onMounted, onUpdated, ref } from "vue";
 
 import MovieCategory from "@/components/Slide/MovieCategory.vue";
+import BaseBtn from "@/components/Button/BaseButton.vue";
 import { routerUtils } from "@/common/routerUtils.js";
 
 import { storeToRefs } from "pinia";
@@ -158,9 +159,9 @@ const getSimilarMovies = (genres) => {
           Movies 擁有豐富的影片內容庫，包括長片、紀錄片、節目、動畫、獲獎肯定的
           Movies 原創作品與更多內容。隨時隨地，盡情觀賞。
         </p>
-        <a-button type="primary" class="large" @click="toSignup">{{
+        <BaseBtn class="introl-join-btn" type="main" @click="toSignup">{{
           $t("str_common_join")
-        }}</a-button>
+        }}</BaseBtn>
       </div>
     </div>
   </main>
@@ -392,6 +393,11 @@ main {
     max-width: 730px;
     margin: 0 auto;
   }
+
+  .introl-join-btn {
+    padding: 7px 40px;
+    font-size: 20px;
+  }
 }
 .introl.with-gradient-blur {
   margin-top: -13rem;
@@ -445,13 +451,6 @@ main {
   line-height: 1.3;
   @media screen and (max-width: 480px) {
     font-size: 16px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .introl-content .ant-btn-primary.large {
-    min-width: auto;
-    width: 100%;
   }
 }
 </style>

@@ -4,6 +4,7 @@ import vInput from "@/components/Form/v-input.vue";
 import GoogleBtn from "@/components/Button/GoogleButton.vue";
 import FBBtn from "@/components/Button/FBButton.vue";
 import LineBtn from "@/components/Button/LineButton.vue";
+import BaseLoginBtn from "@/components/Button/BaseLoginButton.vue";
 
 import { showSuccessAlert } from "@/utils.js";
 
@@ -101,7 +102,7 @@ async function singup() {
         ></vInput>
 
         <div class="login-btn-wrapper">
-          <div class="btn login-btn" @click="checkValue">註冊</div>
+          <BaseLoginBtn type="main" @click="checkValue">註冊</BaseLoginBtn>
           <div class="login">
             已經是會員？<a class="loginLink" @click="toLogin">立即登入</a>。
           </div>
@@ -147,28 +148,13 @@ async function singup() {
   z-index: 10;
   min-height: calc(100vh - 228px);
 
-  .btn {
-    font-size: 16px;
-    font-weight: 700;
-    margin: 24px 0 12px;
-    padding: 16px;
-    width: 100%;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .FB-btn {
-    margin-top: 12px;
-  }
   &::before {
     content: "";
     display: block;
     height: 91px;
   }
   .login-content {
-    min-height: 660px;
+    min-height: 780px;
     padding: 60px 68px 40px;
     margin-bottom: 90px;
     background: rgba(0, 0, 0, 0.75);
@@ -187,9 +173,6 @@ async function singup() {
 }
 
 .login-btn-wrapper {
-  .login-btn {
-    background: var(--color-main);
-  }
   .other {
     display: flex;
     justify-content: space-between;
@@ -222,6 +205,7 @@ async function singup() {
   .login {
     font-size: 16px;
     margin-top: 40px;
+    margin-bottom: 12px;
     color: var(--footer-text-color);
     .loginLink {
       color: var(--color-text);
@@ -230,9 +214,6 @@ async function singup() {
       }
     }
   }
-}
-.connentLogin-wrapper .FB-btn {
-  background: #4267b2;
 }
 
 @media screen and (max-width: 640px) {

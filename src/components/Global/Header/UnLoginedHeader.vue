@@ -1,5 +1,6 @@
 <script setup>
 import switchAppearance from "@/components/Global/Header/SwitchAppearance.vue";
+import BaseBtn from "@/components/Button/BaseButton.vue";
 import { routerUtils } from "@/common/routerUtils.js";
 const { toHome, toLogin, toSignup } = routerUtils();
 </script>
@@ -61,12 +62,12 @@ const { toHome, toLogin, toSignup } = routerUtils();
         <span class="header-text">
           {{ $t("str_header_component_unlimitedHours") }}
         </span>
-        <a-button type="primary" @click="toSignup">{{
+        <BaseBtn type="main" @click="toSignup">{{
           $t("str_common_join")
-        }}</a-button>
-        <a-button class="transparent" @click="toLogin">{{
+        }}</BaseBtn>
+        <BaseBtn type="default" @click="toLogin">{{
           $t("str_common_login")
-        }}</a-button>
+        }}</BaseBtn>
       </a-space>
     </div>
   </header>

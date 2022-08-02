@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import goolgeImg from "@/assets/image/Google__G__Logo.webp";
+import BaseLoginButton from "@/components/Button/BaseLoginButton.vue";
 import { apiCreateAccountByGoogle } from "@/apis/googleSheet.js";
 import { showSuccessAlert } from "@/utils.js";
 import { routerUtils } from "@/common/routerUtils.js";
+
 const { toHome } = routerUtils();
 
 let auth2;
@@ -50,25 +52,26 @@ onMounted(() => {
   startApp();
 });
 </script>
+
 <template>
-  <div class="btn google-btn" id="googleSigninBtn">
-    <img class="btn-icon" alt="Google login" :src="goolgeImg" />
+  <BaseLoginButton :use-icon="true" class="google-btn" id="googleSigninBtn">
+    <template #icon>
+      <img class="btn-icon" alt="Google login" :src="goolgeImg" />
+    </template>
     使用 Google 帳號登入
-  </div>
+  </BaseLoginButton>
 </template>
 
 <style lang="scss" scoped>
-.connentLogin-wrapper .google-btn {
+.google-btn {
   background: #fff;
-  color: #000;
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  border-color: var(--v-gray-light-6);
 
-.btn-icon {
-  width: 20px;
-  margin-right: 12px;
+  ::v-deep(.btn-text) {
+    color: #000;
+  }
+  .btn-icon svg {
+    color: #fff;
+  }
 }
 </style>

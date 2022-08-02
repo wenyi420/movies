@@ -1,6 +1,7 @@
 <script setup>
 import loginBG from "@/assets/image/loginBanner.jpg";
 import vInput from "@/components/Form/v-input.vue";
+import BaseLoginBtn from "@/components/Button/BaseLoginButton.vue";
 import GoogleBtn from "@/components/Button/GoogleButton.vue";
 import FBBtn from "@/components/Button/FBButton.vue";
 import LineBtn from "@/components/Button/LineButton.vue";
@@ -96,7 +97,7 @@ async function login() {
         ></vInput>
 
         <div class="login-btn-wrapper">
-          <div class="btn login-btn" @click="checkValue">登入</div>
+          <BaseLoginBtn type="main" @click="checkValue">登入</BaseLoginBtn>
           <div class="other">
             <a-checkbox v-model:checked="rememberMe">記住我</a-checkbox>
             <a href="javascript:;">需要協助?</a>
@@ -109,7 +110,9 @@ async function login() {
         </div>
 
         <div class="connentLogin-wrapper">
-          <div class="btn testLogin-btn" @click="testLogin">測試帳戶登入</div>
+          <BaseLoginBtn class="testLogin-btn" @click="testLogin"
+            >測試帳戶登入</BaseLoginBtn
+          >
           <FBBtn />
           <GoogleBtn />
           <LineBtn />
@@ -168,7 +171,7 @@ async function login() {
     height: 91px;
   }
   .login-content {
-    min-height: 660px;
+    min-height: 780px;
     padding: 60px 68px 40px;
     margin-bottom: 90px;
     background: rgba(0, 0, 0, 0.75);
@@ -187,9 +190,6 @@ async function login() {
 }
 
 .login-btn-wrapper {
-  .login-btn {
-    background: var(--color-main);
-  }
   .other {
     display: flex;
     justify-content: space-between;
@@ -222,6 +222,7 @@ async function login() {
   .signup {
     font-size: 16px;
     margin-top: 40px;
+    margin-bottom: 12px;
     color: var(--footer-text-color);
     .signupLink {
       color: var(--color-text);
@@ -231,10 +232,8 @@ async function login() {
     }
   }
 }
-.connentLogin-wrapper {
-  .testLogin-btn {
-    background: #868686;
-  }
+.login-btn.testLogin-btn {
+  background: #868686;
 }
 
 @media screen and (max-width: 640px) {
