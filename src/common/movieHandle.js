@@ -57,9 +57,8 @@ export const getFirstSentence = (info) => {
     return result + searchText;
   }
   return "";
-}
+};
 
 export const getMovieScore = (score) => {
   return (score * 10).toFixed(0);
-}
-
+};

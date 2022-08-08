@@ -1,6 +1,6 @@
 <script setup>
 import { defineProps } from "vue";
-import MovieCardItem from "@/components/MovieCardItem.vue";
+import SimilarMovieItem from "@/components/SimilarMovieItem.vue";
 const props = defineProps({
   movies: Array,
 });
@@ -8,7 +8,7 @@ const props = defineProps({
 
 <template>
   <div class="similarMovies-list" v-if="movies && movies.length">
-    <MovieCardItem :movie="m" v-for="m in movies" :key="m.id" />
+    <SimilarMovieItem :movie="m" v-for="m in movies" :key="m.id" />
   </div>
 </template>
 

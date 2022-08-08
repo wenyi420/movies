@@ -144,7 +144,6 @@ const getSimilarMovies = (genres) => {
       </div>
     </section>
 
-    <!-- 待做成一個 section 組件 包裝 slide -->
     <div class="main-swiper-wrapper">
       <MovieCategory class="netflix" type="Netflix" />
       <MovieCategory type="popular" />
@@ -167,9 +166,6 @@ const getSimilarMovies = (genres) => {
       </div>
     </div>
   </main>
-
-  <!-- 負責呈現 hover 的 slideMovie -->
-  <div id="triggerModal" ref="triggerModal"></div>
 
   <MovieModal ref="modal" />
 </template>

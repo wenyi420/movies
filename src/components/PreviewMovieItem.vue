@@ -82,9 +82,9 @@ export default defineComponent({
     const count = ref(0);
     const isActive = ref(false);
     onMounted(() => {
-      let triggerModal = document.querySelector("#triggerModal");
-      triggerModal.style.top = props.top + "px";
-      triggerModal.style.left = props.left + "px";
+      let previewModal = document.querySelector("#previewModal");
+      previewModal.style.top = props.top + "px";
+      previewModal.style.left = props.left + "px";
 
       setTimeout(() => {
         isActive.value = true;

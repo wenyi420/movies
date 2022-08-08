@@ -189,10 +189,3 @@ body {
 .login-content .ant-input-prefix {
   margin-right: 10px;
 }
-
-
-#triggerModal {
-  position: absolute;
-  z-index: 10;
-  transform: translate(-50%, -50%);
-}

@@ -79,7 +79,6 @@ const getReleaseYear = function (date) {
   if (date) return date.split("-")[0];
 };
 
-// 128 min
 const getRunTime = (time) => {
   if (time) {
     let result = "";

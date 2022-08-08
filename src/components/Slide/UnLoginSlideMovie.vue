@@ -1,16 +1,12 @@
 <script setup>
-import { ref, nextTick } from "vue";
-import { onMounted } from "@vue/runtime-core";
+import { ref } from "vue";
 import Swiper from "swiper/bundle";
 import "swiper/css/bundle";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons-vue";
 import { apiGetPopularMovie, apiGetNexflix } from "@/apis/movie.js";
 import { useRouter } from "vue-router";
-import noImg from "@/assets/image/noImg.svg";
 import movieImg from "@/assets/image/MovieSlideImgBox.png";
-
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user.js";
+import SkeletonItem from "@/components/SkeletonItem.vue";
 
 const router = useRouter();
 const movies = ref([]);
@@ -32,7 +28,7 @@ if (!props.tag) {
   }
 }
 
-Promise.all([m1, m2]).then(async (values) => {
+Promise.all([m1, m2]).then((values) => {
   let result = [];
   values.forEach((v) => {
     result = result.concat(v.data.results);
@@ -46,11 +42,7 @@ Promise.all([m1, m2]).then(async (values) => {
     };
   });
   getMoviesList();
-
-  // 待 dom 更新後才 setLazyLoad 避免查無 dom el 導致 setLazy 無效
-  await nextTick();
   INITswiper();
-  setLazyLoad();
 });
 
 const MAX_LIST_LENGTH = 7; // 最多 7 * PRE_VIEW 個電影
@@ -112,8 +104,6 @@ function prevSlideHandler() {
   swiper.setTranslate(currentSlideTranslate.value);
 }
 
-onMounted(() => {});
-
 function INITswiper() {
   swiper = new Swiper(swiperEl.value, {
     spaceBetween: 14, // 間距
@@ -148,26 +138,6 @@ function goToMovie(id) {
   }
   return router.push({ path: `/movie/${id}` });
 }
-
-function setLazyLoad() {
-  const imgs = document.querySelectorAll("a.movie-item");
-  const observer = new IntersectionObserver((nodes) => {
-    nodes.forEach((v) => {
-      // 進入可視區域才加載
-      if (v.isIntersecting) {
-        v.target.style.backgroundImage =
-          "url(https://image.tmdb.org/t/p/w300" + v.target.dataset.src + ")";
-
-        // 避免 skeleton 動畫還沒運作而直接關閉，導致畫面閃爍
-        setTimeout(() => {
-          v.target.classList.add("active");
-        }, 800);
-        observer.unobserve(v.target); // 停止監聽已加載圖片
-      }
-    });
-  });
-  imgs.forEach((v) => observer.observe(v));
-}
 </script>
 
 <template>
@@ -176,21 +146,10 @@ function setLazyLoad() {
       <div class="swiper-wrapper">
         <!-- Slides -->
         <div class="swiper-slide" :key="index" v-for="(movie, index) in movies">
-          <a
-            class="movie-item"
-            :data-src="movie.url"
-            @click="goToMovie(movie.id)"
-          >
-            <!-- 當進入  Intersection Observer API 後，透過 js 添加此 style 
-              :style="{
-              'background-image':
-                'url(https://image.tmdb.org/t/p/w300' + movie.url + ')',
-              }" 
-            -->
-            <img v-if="movie.url" :src="movieImg" alt="" />
-            <img :src="noImg" v-else />
+          <div class="movie-item" @click="goToMovie(movie.id)">
+            <SkeletonItem :content-url="movieImg" :img-url="movie.url" />
             <span class="title">{{ movie.title }}</span>
-          </a>
+          </div>
         </div>
       </div>
     </div>
@@ -232,68 +191,6 @@ function setLazyLoad() {
 
     .swiper-slide {
       position: relative;
-      .movie-item {
-        display: block;
-        background-position: center center;
-        background-repeat: no-repeat;
-        background-size: cover;
-        position: relative;
-
-        @media screen and (max-width: 480px) {
-          overflow: hidden;
-          border-radius: 5px;
-        }
-
-        // 負責呈現 skeleton
-        &::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 0;
-          display: block;
-          width: 100%;
-          height: 100%;
-
-          background: var(--skeleton-bg);
-        }
-
-        // 負責呈現 skeleton
-        &::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 0;
-          display: block;
-          width: 100%;
-          height: 100%;
-
-          background: linear-gradient(
-            90deg,
-            rgba(190, 190, 190, 0.2) 25%,
-            rgba(129, 129, 129, 0.24) 37%,
-            rgba(190, 190, 190, 0.2) 63%
-          );
-          background-size: 400% 100%;
-          animation: ant-skeleton-loading 1.4s ease infinite;
-        }
-      }
-
-      .movie-item.active {
-        &::before {
-          display: none;
-        }
-        &::after {
-          display: none;
-        }
-      }
-
-      img {
-        position: relative;
-        z-index: -1; // 呈現 movie-item 背景圖用
-        width: 100%;
-        height: auto;
-        visibility: hidden; // 避免顯示圖片文字
-      }
     }
     .title {
       color: var(--color-text);
@@ -319,16 +216,6 @@ function setLazyLoad() {
         border-radius: 5px;
       }
     }
-  }
-}
-
-@keyframes ant-skeleton-loading {
-  0% {
-    background-position: 100% 50%;
-  }
-
-  to {
-    background-position: 0 50%;
   }
 }
 
