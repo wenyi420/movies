@@ -1,0 +1,2 @@
+import{_ as l}from"./index.2ef29348.js";let n=t("code"),i=t("state"),p=t("error");p&&window.opener.postMessage({error:"Line \u767B\u5165\u5931\u6557"},location.origin);n&&i&&window.opener.postMessage({code:n,state:i},location.origin);function t(o){let e=location.search.substring(1).split("&").find(r=>{if(r.split("=")[0]===o)return r});return e?e.split("=")[1]:null}const f={};function d(o,s,a,e,r,c){return"line login redirect"}var g=l(f,[["render",d]]);export{g as default};
+//# sourceMappingURL=LineLoginRedirect.452bca6b.js.map
